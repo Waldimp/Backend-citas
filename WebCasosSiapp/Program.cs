@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using WebCasosSiapp.Hubs;
 using WebCasosSiapp.Models.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,11 +39,11 @@ builder.Services.AddSingleton(jwtConfig);
 builder.Services.AddSingleton(environments);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -64,5 +65,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<CasosHub>("/casos");
 
 app.Run();
