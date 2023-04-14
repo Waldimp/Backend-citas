@@ -1,12 +1,18 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WebCasosSiapp.Concretes;
+using WebCasosSiapp.Concretes.Contexts;
 using WebCasosSiapp.Hubs;
+using WebCasosSiapp.Interfaces;
 using WebCasosSiapp.Models.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add database context
+builder.Services.AddDbContext<DatabaseContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DatabaseConnection")));
 
 // Add environment configurations
 var jwtConfig = new JwtConfig
@@ -38,6 +44,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddSingleton(jwtConfig);
 builder.Services.AddSingleton(environments);
 
+builder.Services.AddScoped<IHubData, HubDataConcrete>();
+builder.Services.AddScoped<IVwCases, VwCaseConcrete>();
+
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -65,6 +74,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<CasosHub>("/casos");
+app.MapHub<CaseHub>("/cases");
 
 app.Run();

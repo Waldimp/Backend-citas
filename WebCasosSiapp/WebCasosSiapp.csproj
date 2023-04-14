@@ -14,10 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <ProjectReference Include="..\WebCasosSiapp.Concretes\WebCasosSiapp.Concretes.csproj" />
+      <ProjectReference Include="..\WebCasosSiapp.Interfaces\WebCasosSiapp.Interfaces.csproj" />
       <ProjectReference Include="..\WebCasosSiapp.Models\WebCasosSiapp.Models.csproj" />
     </ItemGroup>
 

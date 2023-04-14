@@ -10,4 +10,9 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.15" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\WebCasosSiapp.Interfaces\WebCasosSiapp.Interfaces.csproj" />
+      <ProjectReference Include="..\WebCasosSiapp.Models\WebCasosSiapp.Models.csproj" />
+    </ItemGroup>
+
 </Project>
