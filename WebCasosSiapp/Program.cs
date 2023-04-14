@@ -45,7 +45,7 @@ builder.Services.AddSingleton(jwtConfig);
 builder.Services.AddSingleton(environments);
 
 builder.Services.AddScoped<IHubData, HubDataConcrete>();
-builder.Services.AddScoped<IVwCases, VwCaseConcrete>();
+builder.Services.AddScoped<IVwCasos, VwCasoConcrete>();
 
 // Add services to the container.
 builder.Services.AddControllers();

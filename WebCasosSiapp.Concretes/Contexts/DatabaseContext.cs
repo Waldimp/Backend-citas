@@ -12,7 +12,8 @@ public class DatabaseContext: DbContext
     public DbSet<UsuarioPerfil>? UserProfiles { get; set; }
     // Schema PRO
     public DbSet<VwCaso>? VwCases { get; set; }
-    
+    public DbSet<VwCasoResumen>? VwCasoResumenes { get; set; }
+
     // Model builder
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebCasosSiapp.Models.PRO.Views;
 
-[Table("VW_Casos", Schema = "PRO")]
+[Table("VW_CasosMain", Schema = "PRO")]
 [Keyless]
 public class VwCaso
 {

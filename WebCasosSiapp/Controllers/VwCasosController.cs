@@ -6,18 +6,18 @@ namespace WebCasosSiapp.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class VwCasesController : Controller
+public class VwCasosController : Controller
 {
-    private readonly IVwCases _cases;
+    private readonly IVwCasos _casos;
 
-    public VwCasesController(IVwCases cases)
+    public VwCasosController(IVwCasos casos)
     {
-        _cases = cases;
+        _casos = casos;
     }
 
     [HttpGet]
     public List<VwCaso>? Index()
     {
-        return _cases.Index();
+        return _casos.Index();
     }
 }

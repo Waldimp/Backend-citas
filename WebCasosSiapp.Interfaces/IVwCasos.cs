@@ -2,7 +2,7 @@ using WebCasosSiapp.Models.PRO.Views;
 
 namespace WebCasosSiapp.Interfaces;
 
-public interface IVwCases
+public interface IVwCasos
 {
     List<VwCaso>? Index();
 }

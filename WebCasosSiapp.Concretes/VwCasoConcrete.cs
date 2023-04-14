@@ -4,11 +4,11 @@ using WebCasosSiapp.Models.PRO.Views;
 
 namespace WebCasosSiapp.Concretes;
 
-public class VwCaseConcrete: IVwCases
+public class VwCasoConcrete: IVwCasos
 {
     private readonly DatabaseContext _ctx;
 
-    public VwCaseConcrete(DatabaseContext ctx)
+    public VwCasoConcrete(DatabaseContext ctx)
     {
         _ctx = ctx;
     }
