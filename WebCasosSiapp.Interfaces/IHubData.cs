@@ -2,5 +2,6 @@ namespace WebCasosSiapp.Interfaces;
 
 public interface IHubData
 {
-    object GetProcessList(string user);
+    object GetProcessesVersionsList(string user);
+    object GetNewActivitiesList(string user);
 }

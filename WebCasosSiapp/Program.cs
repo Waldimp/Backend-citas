@@ -47,12 +47,12 @@ builder.Services.AddSingleton(environments);
 builder.Services.AddScoped<IHubData, HubDataConcrete>();
 builder.Services.AddScoped<IVwCasos, VwCasoConcrete>();
 
+builder.Services.AddSignalR();
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -67,7 +67,10 @@ app.UseHttpsRedirection();
 
 app.UseCors(option =>
 {
-    option.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+    option.WithOrigins("http://localhost:4200")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
 });
 
 app.UseAuthentication();

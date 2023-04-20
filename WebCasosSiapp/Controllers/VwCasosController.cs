@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebCasosSiapp.Functions;
 using WebCasosSiapp.Interfaces;
 using WebCasosSiapp.Models.PRO.Views;
 
 namespace WebCasosSiapp.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class VwCasosController : Controller
@@ -16,8 +19,9 @@ public class VwCasosController : Controller
     }
 
     [HttpGet]
-    public List<VwCaso>? Index()
+    public List<VwCasoResumen>? Index()
     {
-        return _casos.Index();
+        var user = UserJwt.Get(Request.Headers.Authorization);
+        return _casos.Index(user);
     }
 }

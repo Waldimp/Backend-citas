@@ -13,6 +13,7 @@ public class DatabaseContext: DbContext
     // Schema PRO
     public DbSet<VwCaso>? VwCases { get; set; }
     public DbSet<VwCasoResumen>? VwCasoResumenes { get; set; }
+    public DbSet<VwCasoActividadNuevo>? VwCasoActividadesNuevas { get; set; }
 
     // Model builder
     protected override void OnModelCreating(ModelBuilder modelBuilder)

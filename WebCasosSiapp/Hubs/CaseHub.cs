@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using WebCasosSiapp.Interfaces;
 
@@ -13,16 +14,37 @@ public class CaseHub : Hub
     }
 
     // Join to general hub; with it you can get the list of processes
-    public async Task Join(string user)
+    public async void Join(string group)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, user);
+        await Groups.AddToGroupAsync(Context.ConnectionId, group);
     }
     
-    // Join to specific hub; with it can get the list of cases by process
-    public async Task SpecificJoin(string user, string processId)
+    // Remove to hub connection
+    public async Task Remove(string user)
     {
-        var hubName = user + "**" + processId;
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, user);
+    }
+
+    // Join to specific hub; with it can get the list of cases by process
+    public async Task SpecificJoin(string user, string versionProcessId)
+    {
+        var hubName = user + "**" + versionProcessId;
         await Groups.AddToGroupAsync(Context.ConnectionId, hubName);
     }
+
+    // Get list of processes version per user
+    public async Task GetProcessesVersionsList(string user)
+    {
+        var response = _hubData.GetProcessesVersionsList(user);
+        var group = "pvl" + user;
+        await Clients.Group(group).SendAsync("getProcessesVersionsList", response);
+    }
     
+    // Get list of new activities per user
+    public async Task GetNewActivitiesList(string user)
+    {
+        var response = _hubData.GetNewActivitiesList(user);
+        var group = "nal" + user;
+        await Clients.Group(group).SendAsync("getNewActivitiesList", response);
+    }
 }

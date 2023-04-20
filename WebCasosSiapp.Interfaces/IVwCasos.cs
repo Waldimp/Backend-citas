@@ -4,5 +4,5 @@ namespace WebCasosSiapp.Interfaces;
 
 public interface IVwCasos
 {
-    List<VwCaso>? Index();
+    List<VwCasoResumen>? Index(string? user);
 }

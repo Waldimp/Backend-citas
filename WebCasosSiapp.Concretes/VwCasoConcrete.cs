@@ -13,8 +13,8 @@ public class VwCasoConcrete: IVwCasos
         _ctx = ctx;
     }
     
-    public List<VwCaso>? Index()
+    public List<VwCasoResumen>? Index(string? user)
     {
-        return _ctx.VwCases?.ToList();
+        return user == null ? null : _ctx.VwCasoResumenes?.Where(vc => vc.UsuarioIdResponsable == user).ToList();
     }
 }
