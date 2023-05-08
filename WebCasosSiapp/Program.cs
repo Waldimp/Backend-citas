@@ -22,7 +22,8 @@ var jwtConfig = new JwtConfig
 
 var environments = new EnvironmentConfig
 {
-    DatabaseConnection = builder.Configuration.GetConnectionString("DatabaseConnection")
+    DatabaseConnection = builder.Configuration.GetConnectionString("DatabaseConnection"),
+    Message = builder.Configuration["Mensaje"]
 };
 
 // Add JWT configuration
