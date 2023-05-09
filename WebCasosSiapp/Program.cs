@@ -68,7 +68,10 @@ app.UseHttpsRedirection();
 
 app.UseCors(option =>
 {
-    option.WithOrigins("http://localhost:4200")
+    option.WithOrigins(
+            builder.Configuration["Cors:Test"], 
+            builder.Configuration["Cors:Production"]
+            )
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials();
