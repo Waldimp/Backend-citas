@@ -13,11 +13,13 @@ public class VwCasosController : Controller
 {
     private readonly IVwCasos _casos;
     private readonly EnvironmentConfig _env;
+    private readonly IHubData _hubData;
 
-    public VwCasosController(IVwCasos casos, EnvironmentConfig env)
+    public VwCasosController(IVwCasos casos, EnvironmentConfig env, IHubData hubData)
     {
         _casos = casos;
         _env = env;
+        _hubData = hubData;
     }
 
     [HttpGet]
@@ -27,9 +29,9 @@ public class VwCasosController : Controller
         return _casos.Index(user);
     }
 
-    [HttpGet("mensaje")]
-    public string Mensaje()
+    [HttpGet("mensaje/{usuario}")]
+    public object Mensaje(string usuario)
     {
-        return _env.Message;
+        return _hubData.GetProcessesVersionsList(usuario);
     }
 }
