@@ -126,4 +126,26 @@ public class CasoConcrete : ICaso
         _context.PersonasNaturales.ToList();
         return caso;
     }
+
+    public object FijarProcesoUsuario(string ProcesoId, string UsuarioId)
+    {
+        try
+        {
+            ProcesoFijoUsuario procesoFijo = new ProcesoFijoUsuario();
+            procesoFijo.Id = Generals.GetUlid();
+            procesoFijo.ProcesoId = ProcesoId;
+            procesoFijo.UsuarioId = UsuarioId;
+            _context.ProcesoFijoUsuario.Add(procesoFijo);
+            if (_context.SaveChanges() == 1)
+            {
+                return new HttpResult(procesoFijo, HttpStatusCode.OK);
+            }
+            return new HttpError(HttpStatusCode.BadRequest, "Error al fijar proceso. ");
+        }
+        catch (Exception ex)
+        {
+            return new HttpError(HttpStatusCode.BadRequest,
+                "Error en la petición: " + ex.Message);
+        }
+    }
 }

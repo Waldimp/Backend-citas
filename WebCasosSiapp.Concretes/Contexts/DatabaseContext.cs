@@ -24,6 +24,7 @@ public class DatabaseContext: DbContext
     public DbSet<ActividadVersiones>? ActividadVersiones { get; set; }
     public DbSet<VersionProcesos>? VersionProcesos { get; set; }
     public DbSet<PersonasNaturales>? PersonasNaturales { get; set; }
+    public DbSet<ProcesoFijoUsuario>? ProcesoFijoUsuario { get; set; }
 
     // Model builder
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,6 +33,8 @@ public class DatabaseContext: DbContext
         modelBuilder.Entity<ActividadVersiones>().HasKey(k => new { k.Id, k.VersionProcesoId, k.ActividadId });
         modelBuilder.Entity<VersionProcesos>().HasKey(k => new { k.Id, k.ProcesoId });
         modelBuilder.Entity<PersonasNaturales>().HasKey(k => new { k.CodigoPersona });
+        modelBuilder.Entity<ProcesoFijoUsuario>().HasKey(k => new { k.Id, k.ProcesoId, k.UsuarioId });
+        
         modelBuilder.Entity<Paso>()
             .HasOne<Caso>()
             .WithMany(v => v.Pasos)

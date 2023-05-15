@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebCasosSiapp.Functions;
 using WebCasosSiapp.Interfaces;
 using WebCasosSiapp.ViewModels.Requests;
 
@@ -29,4 +30,10 @@ public class CasoController : Controller
         return _caso.ObtenerCaso(id);
     }
     
+    [HttpPost("FijarProcesoUsuario/{ProcesoId}")]
+    public object FijarProcesoUsuario(string ProcesoId)
+    {
+        var user = UserJwt.Get(Request.Headers.Authorization);
+        return _caso.FijarProcesoUsuario(ProcesoId, user);
+    }
 }
