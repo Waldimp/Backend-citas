@@ -48,6 +48,7 @@ builder.Services.AddSingleton(environments);
 builder.Services.AddScoped<IHubData, HubDataConcrete>();
 builder.Services.AddScoped<IVwCasos, VwCasoConcrete>();
 builder.Services.AddScoped<ICaso, CasoConcrete>();
+builder.Services.AddScoped<IPaso, PasoConcrete>();
 
 builder.Services.AddSignalR();
 // Add services to the container.
