@@ -36,4 +36,11 @@ public class CasoController : Controller
         var user = UserJwt.Get(Request.Headers.Authorization);
         return _caso.FijarProcesoUsuario(ProcesoId, user);
     }
+    
+    [HttpDelete("EliminarProcesoFijoUsuario/{ProcesoId}")]
+    public object EliminarProcesoFijoUsuario(string ProcesoId)
+    {
+        var user = UserJwt.Get(Request.Headers.Authorization);
+        return _caso.EliminarProcesoFijoUsuario(ProcesoId, user);
+    }
 }

@@ -12,12 +12,12 @@ namespace WebCasosSiapp.Concretes;
 public class CasoConcrete : ICaso
 {
     private readonly DatabaseContext _context;
-    
+
     public CasoConcrete(DatabaseContext context)
     {
         _context = context;
     }
-    
+
     public object NuevoCaso(NuevoCasoRequest request)
     {
         Caso caso = new Caso();
@@ -34,17 +34,17 @@ public class CasoConcrete : ICaso
             if (_context.SaveChanges() == 1)
             {
                 //Buscar el id de la version activa del proceso en VersionProceso
-                VersionProcesos verPro = 
+                VersionProcesos verPro =
                     _context.VersionProcesos.FirstOrDefault(v => v.ProcesoId == request.ProcesoId && v.Activo == true);
 
                 if (verPro == null)
                     return new HttpError(HttpStatusCode.BadRequest, "No existe versión activa para este proceso. ");
-                
+
                 //buscar la ultima actividad
                 ActividadVersiones act =
                     _context.ActividadVersiones.FirstOrDefault(versiones =>
                         versiones.VersionProcesoId == verPro.Id && versiones.Activo == true);
-                
+
                 if (act != null)
                 {
                     // Agregar caso Cliente
@@ -67,7 +67,7 @@ public class CasoConcrete : ICaso
                         paso.ActividadVersionId = act.Id;
 
                         _context.Paso.Add(paso);
-                        
+
                         //Crear Estado Paso
                         EstadoPaso estadoPaso = new EstadoPaso();
                         estadoPaso.Id = Generals.GetUlid();
@@ -75,7 +75,7 @@ public class CasoConcrete : ICaso
                         estadoPaso.Estado = "Nuevo";
                         estadoPaso.FechaCreacion = DateTime.Now;
                         estadoPaso.AsignadoPor = "SIAPP";
-                        
+
                         _context.EstadoPaso.Add(estadoPaso);
 
                         //Crear Responsable
@@ -98,13 +98,16 @@ public class CasoConcrete : ICaso
                             _context.PersonasNaturales.ToList();
                             return new HttpResult(caso, HttpStatusCode.OK);
                         }
+
                         return new HttpError(HttpStatusCode.BadRequest, "Error al guardar caso. ");
                     }
+
                     return new HttpError(HttpStatusCode.BadRequest, "Error al ingresar los clientes. ");
                 }
+
                 return new HttpError(HttpStatusCode.BadRequest, "No se encontró actividad para este proceso. ");
             }
-            
+
             return new HttpError(HttpStatusCode.BadRequest,
                 "Error en la petición. ");
         }
@@ -118,7 +121,7 @@ public class CasoConcrete : ICaso
 
     public object ObtenerCaso(string id)
     {
-        var caso = _context.Caso.Where( c => c.Id == id).ToList();
+        var caso = _context.Caso.Where(c => c.Id == id).ToList();
         _context.Paso.ToList();
         _context.CasoCliente.ToList();
         _context.EstadoPaso.ToList();
@@ -141,6 +144,29 @@ public class CasoConcrete : ICaso
                 return new HttpResult(procesoFijo, HttpStatusCode.OK);
             }
             return new HttpError(HttpStatusCode.BadRequest, "Error al fijar proceso. ");
+        }
+        catch (Exception ex)
+        {
+            return new HttpError(HttpStatusCode.BadRequest,
+                "Error en la petición: " + ex.Message);
+        }
+    }
+
+    public object EliminarProcesoFijoUsuario(string ProcesoId, string UsuarioId)
+    {
+        try
+        {
+            ProcesoFijoUsuario procesoFijoEli = new ProcesoFijoUsuario();
+            procesoFijoEli = _context.ProcesoFijoUsuario.FirstOrDefault(prFijo =>
+                prFijo.ProcesoId == ProcesoId && prFijo.UsuarioId == UsuarioId);
+            _context.ProcesoFijoUsuario.Remove(procesoFijoEli);
+            
+            if (_context.SaveChanges() == 1)
+            {
+                return new HttpResult(procesoFijoEli, HttpStatusCode.OK);
+            }
+
+            return new HttpError(HttpStatusCode.BadRequest, "Error al eliminar proceso fijado. ");
         }
         catch (Exception ex)
         {
