@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\WebCasosSiapp.Models\WebCasosSiapp.Models.csproj" />
+      <ProjectReference Include="..\WebCasosSiapp.ViewModels\WebCasosSiapp.ViewModels.csproj" />
     </ItemGroup>
 
 </Project>
