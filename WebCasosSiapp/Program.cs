@@ -47,6 +47,7 @@ builder.Services.AddSingleton(environments);
 
 builder.Services.AddScoped<IHubData, HubDataConcrete>();
 builder.Services.AddScoped<IVwCasos, VwCasoConcrete>();
+builder.Services.AddScoped<IVwCasosApertura, VwCasosAperturaConcrete>();
 builder.Services.AddScoped<ICaso, CasoConcrete>();
 builder.Services.AddScoped<IPaso, PasoConcrete>();
 
