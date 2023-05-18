@@ -17,4 +17,5 @@ public class Vw_CasosApertura
     public string NombresUsuario { get; set; }
     public string ApellidosUsuario { get; set; }
     public bool Fijo { get; set; }
+    public string Unidades { get; set; }
 }
