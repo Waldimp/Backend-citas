@@ -30,6 +30,7 @@ public class CasoConcrete : ICaso
             caso.FechaCreacion = DateTime.Now;
             caso.Abierto = true;
             caso.CasoAsociado = null;
+            caso.ComentarioApertura = request.ComentarioApertura; 
             _context.Caso.Add(caso);
             if (_context.SaveChanges() == 1)
             {

@@ -10,7 +10,7 @@ public class Caso
     public DateTime FechaCreacion { get; set; }
     public bool Abierto { get; set; }
     public string? CasoAsociado { get; set; }
-    
+    public string? ComentarioApertura { get; set; }
     public List<Paso>? Pasos { get; set; }
     public List<CasoCliente>? Clientes { get; set; }
 }
