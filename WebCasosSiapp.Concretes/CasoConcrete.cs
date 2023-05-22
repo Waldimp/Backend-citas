@@ -30,7 +30,8 @@ public class CasoConcrete : ICaso
             caso.FechaCreacion = DateTime.Now;
             caso.Abierto = true;
             caso.CasoAsociado = null;
-            caso.ComentarioApertura = request.ComentarioApertura; 
+            caso.ComentarioApertura = request.ComentarioApertura;
+            caso.Estado = "Sin definir";
             _context.Caso.Add(caso);
             if (_context.SaveChanges() == 1)
             {
@@ -48,15 +49,35 @@ public class CasoConcrete : ICaso
 
                 if (act != null)
                 {
-                    // Agregar caso Cliente
-                    foreach (var cliente in request.Clientes)
+                    if (request.Clientes == null)
                     {
+                        //hacer busqueda por el usuario
+                        var personaEmpleado = _context.Empleados
+                            .FirstOrDefault(emp => emp.CodigoUsuario == request.Responsable.UsuarioId);
+                        if (personaEmpleado == null)
+                        {
+                            return new HttpError(HttpStatusCode.BadRequest, "Error al ingresar el cliente. ");
+                        }
+                        
                         CasoCliente casoCliente = new CasoCliente();
                         casoCliente.Id = Generals.GetUlid();
                         casoCliente.CasoId = caso.Id;
-                        casoCliente.ClienteId = cliente;
+                        casoCliente.ClienteId = personaEmpleado.CodigoPersona;
                         _context.CasoCliente.Add(casoCliente);
                     }
+                    else
+                    {
+                        // Agregar caso Cliente
+                        foreach (var cliente in request.Clientes)
+                        {
+                            CasoCliente casoCliente = new CasoCliente();
+                            casoCliente.Id = Generals.GetUlid();
+                            casoCliente.CasoId = caso.Id;
+                            casoCliente.ClienteId = cliente;
+                            _context.CasoCliente.Add(casoCliente);
+                        }
+                    }
+                   
 
                     int resCliente = _context.SaveChanges();
                     if (resCliente > 0)
