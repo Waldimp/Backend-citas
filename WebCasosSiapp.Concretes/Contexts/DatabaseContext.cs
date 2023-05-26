@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using WebCasosSiapp.Models.HUM;
 using WebCasosSiapp.Models.PRO;
 using WebCasosSiapp.Models.PRO.Views;
 using WebCasosSiapp.Models.SIS;
@@ -27,6 +28,7 @@ public class DatabaseContext: DbContext
     public DbSet<PersonasNaturales>? PersonasNaturales { get; set; }
     public DbSet<ProcesoFijoUsuario>? ProcesoFijoUsuario { get; set; }
 
+    public DbSet<Empleados> Empleados { get; set; }
     // Model builder
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,7 +37,8 @@ public class DatabaseContext: DbContext
         modelBuilder.Entity<VersionProcesos>().HasKey(k => new { k.Id, k.ProcesoId });
         modelBuilder.Entity<PersonasNaturales>().HasKey(k => new { k.CodigoPersona });
         modelBuilder.Entity<ProcesoFijoUsuario>().HasKey(k => new { k.Id, k.ProcesoId, k.UsuarioId });
-        
+        modelBuilder.Entity<Empleados>().HasKey(k => new { k.CodigoEmpleado });
+
         modelBuilder.Entity<Paso>()
             .HasOne<Caso>()
             .WithMany(v => v.Pasos)
