@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using WebCasosSiapp.Interfaces;
+using WebCasosSiapp.ViewModels.Requests;
 
 namespace WebCasosSiapp.Hubs;
 
@@ -46,5 +47,12 @@ public class CaseHub : Hub
         var response = _hubData.GetNewActivitiesList(user);
         var group = "nal" + user;
         await Clients.Group(group).SendAsync("getNewActivitiesList", response);
+    }
+    
+     public async Task GetDetailProcessesVersionList(HubConectionRequest req)
+    {
+        var response = _hubData.GetDetailActivitiesList(req.Usuario, req.Version);
+        var group = "dpv" + req.Usuario + "**" + req.Version;
+        await Clients.Group(group).SendAsync("getDetailProcessesVersionList", response);
     }
 }

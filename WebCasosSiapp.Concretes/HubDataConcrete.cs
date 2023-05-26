@@ -2,6 +2,7 @@ using System.Net;
 using ServiceStack;
 using WebCasosSiapp.Concretes.Contexts;
 using WebCasosSiapp.Interfaces;
+using WebCasosSiapp.ViewModels.Responses;
 
 namespace WebCasosSiapp.Concretes;
 
@@ -37,5 +38,26 @@ public class HubDataConcrete : IHubData
         var list = _ctx.VwCasoActividadesNuevas?.Where(vc => vc.UsuarioIdResponsable == user)
             .OrderByDescending(vc => vc.FechaEstado).ToList();
         return new HttpResult(list, HttpStatusCode.OK);
+    }
+
+    public object GetDetailActivitiesList(string? user, string? version)
+    {
+        if (user == null || version == null)
+            return new HttpError(HttpStatusCode.BadRequest, "No se encontró el usuario o la versión");
+
+        var list = _ctx.VwCasosTiempoResponsables
+            ?.Where(vt =>
+                vt.UsuarioIdResponsable == user && vt.VersionProcesoId == version && vt.Estado != "Finalizado")
+            .OrderByDescending(vt => vt.FechaEstado).ToList();
+
+        var nombre = list.Count > 0 ? list[0].NombreProceso : "Proceso";
+
+        var response = new HubConnectionResponse.DetalleVersionResponse
+        {
+            Nombre = nombre,
+            Abiertos = list
+        };
+
+        return new HttpResult(response, HttpStatusCode.OK);
     }
 }

@@ -16,7 +16,7 @@ public class DatabaseContext: DbContext
     public DbSet<VwCasoResumen>? VwCasoResumenes { get; set; }
     public DbSet<VwCasoActividadNuevo>? VwCasoActividadesNuevas { get; set; }
     public DbSet<Vw_CasosApertura>? VwCasosApertura { get; set; }
-
+    public DbSet<VwCasoTiempoRes>? VwCasosTiempoResponsables { get; set; }
     public DbSet<Caso>? Caso { get; set; }
     public DbSet<CasoCliente>? CasoCliente { get; set; }
     public DbSet<Paso>? Paso { get; set; }

@@ -32,6 +32,6 @@ public class VwCasosController : Controller
     [HttpGet("mensaje/{usuario}")]
     public object Mensaje(string usuario)
     {
-        return _hubData.GetProcessesVersionsList(usuario);
+        return _hubData.GetDetailActivitiesList(usuario, "5c5a827eaeb2449ca560228f0d60d8c3");
     }
 }
