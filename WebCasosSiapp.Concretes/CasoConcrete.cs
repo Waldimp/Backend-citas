@@ -42,10 +42,10 @@ public class CasoConcrete : ICaso
                 if (verPro == null)
                     return new HttpError(HttpStatusCode.BadRequest, "No existe versión activa para este proceso. ");
 
-                //buscar la ultima actividad
+                //buscar la primera actividad
                 ActividadVersiones act =
                     _context.ActividadVersiones.FirstOrDefault(versiones =>
-                        versiones.VersionProcesoId == verPro.Id && versiones.Activo == true);
+                        versiones.VersionProcesoId == verPro.Id && versiones.Activo == true && versiones.TipoActividad == "Inicial");
 
                 if (act != null)
                 {
