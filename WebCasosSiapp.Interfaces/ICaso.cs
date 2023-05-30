@@ -1,3 +1,4 @@
+using WebCasosSiapp.Models.PRO;
 using WebCasosSiapp.ViewModels.Requests;
 
 namespace WebCasosSiapp.Interfaces;
@@ -8,4 +9,5 @@ public interface ICaso
     object ObtenerCaso(string id);
     object FijarProcesoUsuario(string ProcesoId, string UsuarioId);
     object EliminarProcesoFijoUsuario(string ProcesoId, string UsuarioId);
+    public Ciclo AsignacionCiclica(string ActividadVersionId);
 }

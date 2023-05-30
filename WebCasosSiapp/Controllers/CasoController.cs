@@ -30,6 +30,12 @@ public class CasoController : Controller
         return _caso.ObtenerCaso(id);
     }
     
+    [HttpGet("TestAsignacionCiclica/{ActividadVersionId}")]
+    public object TestAsignacionCiclica(string ActividadVersionId)
+    {
+        return _caso.AsignacionCiclica(ActividadVersionId);
+    }
+    
     [HttpPost("FijarProcesoUsuario/{ProcesoId}")]
     public object FijarProcesoUsuario(string ProcesoId)
     {

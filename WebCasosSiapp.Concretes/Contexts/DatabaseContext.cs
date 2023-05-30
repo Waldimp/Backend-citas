@@ -27,7 +27,9 @@ public class DatabaseContext: DbContext
     public DbSet<VersionProcesos>? VersionProcesos { get; set; }
     public DbSet<PersonasNaturales>? PersonasNaturales { get; set; }
     public DbSet<ProcesoFijoUsuario>? ProcesoFijoUsuario { get; set; }
-
+    public DbSet<Ciclo>? Ciclo { get; set; }
+    public DbSet<ActividadVersionPerfil> ActividadVersionPerfil { get; set; }
+    public DbSet<Usuarios> Usuarios { get; set; }
     public DbSet<Empleados> Empleados { get; set; }
     // Model builder
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +39,8 @@ public class DatabaseContext: DbContext
         modelBuilder.Entity<VersionProcesos>().HasKey(k => new { k.Id, k.ProcesoId });
         modelBuilder.Entity<PersonasNaturales>().HasKey(k => new { k.CodigoPersona });
         modelBuilder.Entity<ProcesoFijoUsuario>().HasKey(k => new { k.Id, k.ProcesoId, k.UsuarioId });
+        modelBuilder.Entity<Usuarios>().HasKey(k => new { k.CodigoUsuario });
+        modelBuilder.Entity<Ciclo>().HasKey(k => new { k.Id, k.UsuarioId, k.ActividadVersionId });
         modelBuilder.Entity<Empleados>().HasKey(k => new { k.CodigoEmpleado });
 
         modelBuilder.Entity<Paso>()
@@ -62,5 +66,11 @@ public class DatabaseContext: DbContext
             .WithMany(v => v.Responsable)
             .HasForeignKey(s=>s.PasoId)
             .HasPrincipalKey(a=>a.Id);
+        
+        modelBuilder.Entity<ActividadVersionPerfil>()
+            .HasOne<UsuarioPerfil>(p=>p.Perfil)
+            .WithMany()
+            .HasForeignKey(s=>s.PerfilId)
+            .HasPrincipalKey(a=>a.CodigoPerfil);
     }
 }

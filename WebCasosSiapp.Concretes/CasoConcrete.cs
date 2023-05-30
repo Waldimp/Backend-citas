@@ -5,6 +5,7 @@ using WebCasosSiapp.Concretes.Contexts;
 using WebCasosSiapp.Concretes.Functions;
 using WebCasosSiapp.Interfaces;
 using WebCasosSiapp.Models.PRO;
+using WebCasosSiapp.Models.SIS;
 using WebCasosSiapp.ViewModels.Requests;
 
 namespace WebCasosSiapp.Concretes;
@@ -194,6 +195,87 @@ public class CasoConcrete : ICaso
         {
             return new HttpError(HttpStatusCode.BadRequest,
                 "Error en la petición: " + ex.Message);
+        }
+    }
+
+    public Ciclo AsignacionCiclica(string ActividadVersionId)
+    {
+        try
+        {
+            //Obtenemos los perfiles de la actividad version
+            List<UsuarioPerfil> usuariosList = new List<UsuarioPerfil>();
+            List<ActividadVersionPerfil> perfiles = _context.ActividadVersionPerfil
+                .Where(av => av.ActividadVersionId == ActividadVersionId && av.Rol == "responsable" ).ToList();
+            
+            foreach (var perfil in perfiles)
+            { // Obtenemos los usuarios de los perfiles seleccionados
+                var usuariosPerfil =
+                    _context.UserProfiles.Where(usuarP => usuarP.CodigoPerfil == perfil.PerfilId).ToList();
+                var usuarios = _context.Usuarios.ToList();
+                usuariosList.AddRange(usuariosPerfil);
+            }
+            
+            usuariosList = usuariosList.DistinctBy(usu => usu.CodigoUsuario).ToList(); // Eliminamos usuarios repetidos por tener ambos perfiles
+            usuariosList = usuariosList.OrderBy(usu => usu.Usuario.ApellidosUsuario).ToList(); // Ordenar por apellidos
+
+            //Obtenemos los ciclos que nada más sean true (iniciales)
+            List<Ciclo> ultimoCicloIniciado = _context.Ciclo.Where(c => c.ActividadVersionId == ActividadVersionId && c.Nuevo == true)
+                .OrderByDescending(c => c.CreatedAt).ToList();
+
+            //Creamos valores iniciales del ciclo a insertar
+            Ciclo ciclo = new Ciclo();
+            ciclo.Id = Generals.GetUlid();
+            ciclo.ActividadVersionId = ActividadVersionId;
+            ciclo.CreatedAt = DateTime.Now;
+            
+            if (ultimoCicloIniciado.Count == 0) // Si no existe ni siquiera un ciclo iniciado, se inicia el primero
+            { // Se inicia nuevo ciclo
+                ciclo.UsuarioId = usuariosList.First().CodigoUsuario;
+                ciclo.Nuevo = true;
+                _context.Ciclo.Add(ciclo);
+                if (_context.SaveChanges() == 1)
+                {
+                    return ciclo;
+                }
+            }
+            else
+            {
+                // Obtenemos los usuarios agregados al ultimo ciclo que tiene true
+                List<Ciclo> ciclosActual = _context.Ciclo
+                    .Where(c => c.ActividadVersionId == ActividadVersionId && c.CreatedAt >= ultimoCicloIniciado[0].CreatedAt ).ToList();
+                
+                // empezamos a recorrer los datos del ciclo con los usuarios disponibles
+                foreach (var usuario in usuariosList)
+                {
+                    var existeEnCiclo = ciclosActual.FirstOrDefault(c => c.UsuarioId == usuario.CodigoUsuario);
+                    if (existeEnCiclo == null) // Si no existe en el ciclo actual lo inserta
+                    {
+                        ciclo.UsuarioId = usuario.CodigoUsuario;
+                        ciclo.Nuevo = false;
+
+                        _context.Ciclo.Add(ciclo);
+                        if (_context.SaveChanges() == 1)
+                        {
+                            return ciclo;
+                        }
+                    }
+                }
+                
+                // si salimos del ciclo entonces creamos nuevamente el ciclo
+                ciclo.UsuarioId = usuariosList.First().CodigoUsuario;
+                ciclo.Nuevo = true;
+                _context.Ciclo.Add(ciclo);
+                if (_context.SaveChanges() == 1)
+                {
+                    return ciclo;
+                }
+            }
+            
+            return null; 
+        }
+        catch (Exception ex)
+        {
+            return null;
         }
     }
 }
