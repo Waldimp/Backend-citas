@@ -14,7 +14,6 @@ public class ActividadVersiones
     public bool Activo { get; set; }
     public bool? Favorable { get; set; }
     public string TipoEtapa { get; set; }
-    public string Movimiento { get; set; }
     public bool? Iterativo { get; set; }
     public string VersionProcesoId { get; set; }
     
