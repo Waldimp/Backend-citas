@@ -78,51 +78,22 @@ public class CasoConcrete : ICaso
                             _context.CasoCliente.Add(casoCliente);
                         }
                     }
-                   
-
+                    
                     int resCliente = _context.SaveChanges();
                     if (resCliente > 0)
                     {
+                        NuevoPasoRequest nuevoPasoRequest = new NuevoPasoRequest();
+                        nuevoPasoRequest.Caso = caso;
+                        nuevoPasoRequest.ActividadVersionId = act.Id;
+                        nuevoPasoRequest.TipoMovimiento = "Monousuario";
+                        nuevoPasoRequest.Responsable = request.Responsable;
+                        
                         // Crear Paso
-                        Paso paso = new Paso();
-                        paso.Id = Generals.GetUlid();
-                        paso.CasoId = caso.Id;
-                        paso.ActividadVersionId = act.Id;
+                        Paso paso = CrearPaso(nuevoPasoRequest);
 
-                        _context.Paso.Add(paso);
-
-                        //Crear Estado Paso
-                        EstadoPaso estadoPaso = new EstadoPaso();
-                        estadoPaso.Id = Generals.GetUlid();
-                        estadoPaso.PasoId = paso.Id;
-                        estadoPaso.Estado = "Nuevo";
-                        estadoPaso.FechaCreacion = DateTime.Now;
-                        estadoPaso.AsignadoPor = "SIAPP";
-
-                        _context.EstadoPaso.Add(estadoPaso);
-
-                        //Crear Responsable
-                        Responsable responsable = new Responsable();
-                        responsable.Id = Generals.GetUlid();
-                        responsable.PasoId = paso.Id;
-                        responsable.UsuarioId = request.Responsable.UsuarioId;
-                        responsable.FechaCreacion = DateTime.Now;
-                        responsable.AsignadoPor = request.Responsable.AsignadoPor;
-
-                        _context.Responsable.Add(responsable);
-
-                        int res = _context.SaveChanges();
-                        if (res == 3)
-                        {
-                            _context.Paso.ToList();
-                            _context.CasoCliente.ToList();
-                            _context.EstadoPaso.ToList();
-                            _context.Responsable.ToList();
-                            _context.PersonasNaturales.ToList();
-                            return new HttpResult(caso, HttpStatusCode.OK);
-                        }
-
-                        return new HttpError(HttpStatusCode.BadRequest, "Error al guardar caso. ");
+                        return caso != null ? 
+                            new HttpResult(caso, HttpStatusCode.OK) : 
+                            new HttpError(HttpStatusCode.BadRequest, "Error al guardar caso. ");
                     }
 
                     return new HttpError(HttpStatusCode.BadRequest, "Error al ingresar los clientes. ");
@@ -151,6 +122,65 @@ public class CasoConcrete : ICaso
         _context.Responsable.ToList();
         _context.PersonasNaturales.ToList();
         return caso;
+    }
+
+    public Paso CrearPaso(NuevoPasoRequest request)
+    {
+        // Crear Paso
+        Paso paso = new Paso();
+        paso.Id = Generals.GetUlid();
+        paso.CasoId = request.Caso.Id;
+        paso.ActividadVersionId = request.ActividadVersionId;
+        _context.Paso.Add(paso);
+
+        if (_context.SaveChanges() == 1)
+        {
+            //Crear Estado Paso
+            EstadoPaso estadoPaso = new EstadoPaso();
+            estadoPaso.Id = Generals.GetUlid();
+            estadoPaso.PasoId = paso.Id;
+            estadoPaso.Estado = request.TipoMovimiento == "Autoservicio" ? "Grupo" : "Nuevo";
+            estadoPaso.FechaCreacion = DateTime.Now;
+            estadoPaso.AsignadoPor = "SIAPP";
+            _context.EstadoPaso.Add(estadoPaso);
+
+            if (request.TipoMovimiento != "Autoservicio") // Si es autoservicio no se agrega responsable
+            {
+                //Crear Responsable
+                Responsable responsable = new Responsable();
+                responsable.Id = Generals.GetUlid();
+                responsable.PasoId = paso.Id;
+                responsable.FechaCreacion = DateTime.Now;
+
+                if (request.TipoMovimiento == "Ciclico")
+                {
+                    Ciclo ciclo = AsignacionCiclica(request.ActividadVersionId);
+                    if (ciclo != null)
+                    {
+                        responsable.UsuarioId = ciclo.UsuarioId;
+                        responsable.AsignadoPor = "SIAPP";
+                    }
+                }
+                else
+                { // Asignacion Manual o Monousuario
+                    responsable.UsuarioId = request.Responsable.UsuarioId;
+                    responsable.AsignadoPor = request.Responsable.AsignadoPor;
+                }
+                
+                _context.Responsable.Add(responsable);
+            }
+            
+            int res = _context.SaveChanges();
+            if (res > 1)
+            {
+                _context.CasoCliente.ToList();
+                _context.EstadoPaso.ToList();
+                _context.Responsable.ToList();
+                _context.PersonasNaturales.ToList();
+                return paso;
+            }
+        }
+        return null;
     }
 
     public object FijarProcesoUsuario(string ProcesoId, string UsuarioId)
