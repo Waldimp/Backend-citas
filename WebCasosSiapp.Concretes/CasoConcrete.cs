@@ -25,7 +25,7 @@ public class CasoConcrete : ICaso
         try
         {
             //agregar caso
-            var fechaUnix = DateTime.Now.ToUnixTime();
+            var fechaUnix = DateTime.Now.ToUnixTimeMs();
             caso.Id = Generals.GetUlid();
             caso.Codigo = fechaUnix.ToString("x8"); //Convertida a Hexadecimal
             caso.FechaCreacion = DateTime.Now;
