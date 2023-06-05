@@ -11,4 +11,6 @@ public class VersionProcesos
     public bool Activo { get; set; }
     public DateTime FechaCreacion { get; set; }
     public string CreadoPor { get; set; }
+    
+    public List<ActividadVersiones>? Actividades { get; set; }
 }

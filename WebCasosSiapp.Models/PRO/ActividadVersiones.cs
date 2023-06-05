@@ -18,5 +18,8 @@ public class ActividadVersiones
     public string VersionProcesoId { get; set; }
     
     public string ActividadId { get; set; }
+    public Actividades? Actividad { get; set; }
     
+    public List<Relaciones>? Relaciones { get; set; }
+    public List<Secciones>? Secciones { get; set; }
 }
