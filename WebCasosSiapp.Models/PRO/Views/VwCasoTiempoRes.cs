@@ -14,6 +14,7 @@ public class VwCasoTiempoRes
     public string ActividadVersionId { get; set; }
     public string NombreActividad { get; set; }
     public string CasoId { get; set; }
+    public string PasoId { get; set; }
     public string Estado { get; set; }
     public string Expediente { get; set; }
     public bool Abierto { get; set; }
