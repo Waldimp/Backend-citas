@@ -16,4 +16,5 @@ public class Secciones
     public string? Metadata { get; set; }
     public string? Accion { get; set; }
     public List<PerfilSeccion>? PerfilSecciones { get; set; }
+    public List<Registro>? Registros { get; set; }
 }
