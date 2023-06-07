@@ -111,5 +111,12 @@ public class DatabaseContext: DbContext
             .WithMany(s => s.Registros)
             .HasForeignKey(r => r.SeccionId)
             .HasPrincipalKey(s => s.Id);
+        
+        // Relaciones y actividad version
+        modelBuilder.Entity<Relaciones>()
+            .HasOne<ActividadVersiones>()
+            .WithMany(a => a.Relaciones)
+            .HasForeignKey(r => r.ActividadVersionOrigen)
+            .HasPrincipalKey(a => a.Id);
     }
 }

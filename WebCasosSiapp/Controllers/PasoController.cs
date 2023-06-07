@@ -23,7 +23,7 @@ public class PasoController : Controller
     }
     
     [HttpGet("DatosDePaso/{PasoId}")]
-    public object DatosDePaso(string PasoId)
+    public object? DatosDePaso(string PasoId)
     {
         return _paso.DatosDePaso(PasoId);
     }
