@@ -6,7 +6,7 @@ public class PasoResponse
 {
     public string Id { get; set; }
     public Caso? Caso { get; set; }
-    public Actividades? Actividad { get; set; } 
+    public ActividadVersiones? Actividad { get; set; } 
     public List<EstadoPaso>? Estados { get; set; } 
     public List<Responsable>? Responsables { get; set; } 
     public List<Observaciones>? Observaciones { get; set; } 
