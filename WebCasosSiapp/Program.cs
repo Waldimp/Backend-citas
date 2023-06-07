@@ -50,6 +50,7 @@ builder.Services.AddScoped<IVwCasosApertura, VwCasosAperturaConcrete>();
 builder.Services.AddScoped<ICaso, CasoConcrete>();
 builder.Services.AddScoped<IPaso, PasoConcrete>();
 builder.Services.AddScoped<IRegistro, RegistroConcrete>();
+builder.Services.AddScoped<IObservacion, ObservacionConcrete>();
 
 builder.Services.AddSignalR();
 // Add services to the container.
