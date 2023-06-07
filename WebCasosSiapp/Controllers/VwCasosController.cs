@@ -11,22 +11,13 @@ namespace WebCasosSiapp.Controllers;
 [Route("api/[controller]")]
 public class VwCasosController : Controller
 {
-    private readonly IVwCasos _casos;
     private readonly EnvironmentConfig _env;
     private readonly IHubData _hubData;
 
-    public VwCasosController(IVwCasos casos, EnvironmentConfig env, IHubData hubData)
+    public VwCasosController(EnvironmentConfig env, IHubData hubData)
     {
-        _casos = casos;
         _env = env;
         _hubData = hubData;
-    }
-
-    [HttpGet]
-    public List<VwCasoResumen>? Index()
-    {
-        var user = UserJwt.Get(Request.Headers.Authorization);
-        return _casos.Index(user);
     }
 
     [HttpGet("mensaje/{usuario}")]
