@@ -75,7 +75,7 @@ public class PasoConcrete : IPaso
             response.Estados = _context.EstadoPaso.Where(ep => ep.PasoId == PasoId).ToList();
             response.Responsables = _context.Responsable.Where(r => r.PasoId == PasoId).ToList();
             response.Observaciones = _context.Observaciones.Where(o => o.PasoId == PasoId).ToList();
-            response.Secciones = _context.Secciones.Where(s => s.ActividadVersionId == actividadVersiones.Id).ToList();
+            response.Secciones = _context.Secciones.Where(s => s.ActividadVersionId == actividadVersiones.Id).OrderBy(s => s.Orden).ToList();
 
             actividadVersiones.Secciones = null;
             actividadVersiones.Relaciones = null;
