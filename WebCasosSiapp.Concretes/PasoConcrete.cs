@@ -56,7 +56,7 @@ public class PasoConcrete : IPaso
 
             Caso caso = _context.Caso.FirstOrDefault(c => c.Id == paso.CasoId);
             _context.Actividades.ToList();
-            _context.Registro.ToList();
+            _context.Registro.Where(r => r.PasoId == PasoId).ToList();
             var rel = _context.Relaciones?.Select(r => new Relaciones
             {
                 Id = r.Id,

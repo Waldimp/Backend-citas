@@ -36,7 +36,7 @@ public class RegistroConcrete : IRegistro
             var secciones = _ctx.Secciones?.Where(s =>
                 s.ActividadVersionId == _ctx.Secciones.Where(s2 => s2.Id == datos.SeccionId)
                 .Select(s2 => s2.ActividadVersionId).Single()).OrderBy(s => s.Orden).ToList();
-            _ctx.Registro?.ToList();
+            _ctx.Registro?.Where(r => r.PasoId == datos.PasoId).ToList();
             return new HttpResult(secciones, HttpStatusCode.OK);
         }
         catch (Exception e)
