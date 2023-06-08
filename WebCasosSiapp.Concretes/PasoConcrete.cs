@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.EntityFrameworkCore;
 using ServiceStack;
 using WebCasosSiapp.Concretes.Contexts;
 using WebCasosSiapp.Concretes.Functions;
@@ -54,10 +55,30 @@ public class PasoConcrete : IPaso
             }
 
             Caso caso = _context.Caso.FirstOrDefault(c => c.Id == paso.CasoId);
-            ActividadVersiones actividadVersiones = _context.ActividadVersiones.FirstOrDefault(c => c.Id == paso.ActividadVersionId);
             _context.Actividades.ToList();
             _context.Registro.ToList();
+            var rel = _context.Relaciones?.Select(r => new Relaciones
+            {
+                Id = r.Id,
+                Accion = r.Accion,
+                ResumenDatos = r.ResumenDatos,
+                TipoMovimiento = r.TipoMovimiento,
+                TipoSeleccion = r.TipoSeleccion,
+                ActividadVersionDestino = r.ActividadVersionDestino,
+                ActividadVersionOrigen = r.ActividadVersionOrigen,
+                NombreActividadDestino = _context.Actividades
+                    .Where(a => a.Id == _context.ActividadVersiones.Where(av => av.Id == r.ActividadVersionDestino)
+                        .Select(av => av.ActividadId).Single()).Select(a => a.Nombre).Single(),
+                NombreColoquialActividadDestino = _context.Actividades
+                    .Where(a => a.Id == _context.ActividadVersiones.Where(av => av.Id == r.ActividadVersionDestino)
+                        .Select(av => av.ActividadId).Single()).Select(a => a.NombreColoquial).Single(),
+            }).ToList();
             
+            var actividadVersiones = _context.ActividadVersiones?.FirstOrDefault(c => c.Id == paso.ActividadVersionId);
+
+            actividadVersiones.Relaciones = rel.FindAll(r => r.ActividadVersionOrigen == actividadVersiones.Id);
+
+
             // Guardando solo los datos del caso
             Caso casoDatos = new Caso();
             casoDatos.Id = caso.Id;
@@ -78,7 +99,6 @@ public class PasoConcrete : IPaso
             response.Secciones = _context.Secciones.Where(s => s.ActividadVersionId == actividadVersiones.Id).OrderBy(s => s.Orden).ToList();
 
             actividadVersiones.Secciones = null;
-            actividadVersiones.Relaciones = null;
             response.Actividad = actividadVersiones;
 
             return new HttpResult(response, HttpStatusCode.OK);

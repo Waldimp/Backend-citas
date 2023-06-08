@@ -12,4 +12,8 @@ public class Relaciones
     public string? Accion { get; set; }
     public bool ResumenDatos { get; set; }
     public string? TipoSeleccion { get; set; }
+ 
+    // Nombres de las actividades
+    public string? NombreActividadDestino { get; set; }
+    public string? NombreColoquialActividadDestino { get; set; }
 }
