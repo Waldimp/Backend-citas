@@ -77,8 +77,7 @@ public class PasoConcrete : IPaso
             var actividadVersiones = _context.ActividadVersiones?.FirstOrDefault(c => c.Id == paso.ActividadVersionId);
 
             actividadVersiones.Relaciones = rel.FindAll(r => r.ActividadVersionOrigen == actividadVersiones.Id);
-
-
+            
             // Guardando solo los datos del caso
             Caso casoDatos = new Caso();
             casoDatos.Id = caso.Id;
@@ -86,7 +85,6 @@ public class PasoConcrete : IPaso
             casoDatos.FechaCreacion = caso.FechaCreacion;
             casoDatos.Abierto = caso.Abierto;
             casoDatos.ComentarioApertura = caso.ComentarioApertura;
-            casoDatos.Estado = caso.Estado;
             casoDatos.CasoAsociado = caso.CasoAsociado;
             
             //Creando response 

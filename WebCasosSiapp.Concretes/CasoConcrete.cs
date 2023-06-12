@@ -32,7 +32,6 @@ public class CasoConcrete : ICaso
             caso.Abierto = true;
             caso.CasoAsociado = null;
             caso.ComentarioApertura = request.ComentarioApertura;
-            caso.Estado = "Sin definir";
             _context.Caso.Add(caso);
             if (_context.SaveChanges() == 1)
             {
