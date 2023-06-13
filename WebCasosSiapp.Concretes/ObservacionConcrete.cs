@@ -42,4 +42,20 @@ public class ObservacionConcrete: IObservacion
                 "Error en la petición: " + e.Message);
         }
     }
+    
+    public object Index(string pasoId)
+    {
+        try
+        {
+            List<Observaciones> observaciones = _ctx.Observaciones.Where(o => o.PasoId == pasoId)
+                .OrderByDescending(o => o.FechaCreacion).ToList();
+
+            return new HttpResult(observaciones, HttpStatusCode.OK);
+        }
+        catch (Exception e)
+        {
+            return new HttpError(HttpStatusCode.BadRequest,
+                "Error en la petición: " + e.Message);
+        }
+    }
 }
