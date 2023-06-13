@@ -2,6 +2,7 @@ using System.Net;
 using ServiceStack;
 using WebCasosSiapp.Concretes.Contexts;
 using WebCasosSiapp.Interfaces;
+using WebCasosSiapp.Models.PRO.Views;
 using WebCasosSiapp.ViewModels.Responses;
 
 namespace WebCasosSiapp.Concretes;
@@ -45,10 +46,12 @@ public class HubDataConcrete : IHubData
         if (user == null || version == null)
             return new HttpError(HttpStatusCode.BadRequest, "No se encontró el usuario o la versión");
 
+        var customOrder = new List<string> {"Nuevo", "Grupo", "En proceso", "Borrador", "En pausa"};
+
         var list = _ctx.VwCasosTiempoResponsables
             ?.Where(vt =>
                 vt.UsuarioIdResponsable == user && vt.VersionProcesoId == version && vt.Estado != "Finalizado")
-            .OrderByDescending(vt => vt.FechaEstado).ToList();
+            .ToList().OrderBy(vt => customOrder.IndexOf(vt.Estado)).ThenByDescending(vt => vt.FechaEstado).ToList();
 
         var nombre = list.Count > 0 ? list[0].NombreProceso : "Proceso";
 
