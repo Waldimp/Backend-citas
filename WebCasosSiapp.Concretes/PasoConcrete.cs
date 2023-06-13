@@ -57,7 +57,7 @@ public class PasoConcrete : IPaso
             Caso caso = _context.Caso.FirstOrDefault(c => c.Id == paso.CasoId);
             _context.Actividades.ToList();
             _context.Registro.Where(r => r.PasoId == PasoId).ToList();
-            var rel = _context.Relaciones?.Select(r => new Relaciones
+            var rel = _context.Relaciones?.Select(r => new RelacionesExt()
             {
                 Id = r.Id,
                 Accion = r.Accion,
@@ -74,10 +74,26 @@ public class PasoConcrete : IPaso
                         .Select(av => av.ActividadId).Single()).Select(a => a.NombreColoquial).Single(),
             }).ToList();
             
-            var actividadVersiones = _context.ActividadVersiones?.FirstOrDefault(c => c.Id == paso.ActividadVersionId);
+            var actVersiones = _context.ActividadVersiones?.FirstOrDefault(c => c.Id == paso.ActividadVersionId);
 
-            actividadVersiones.Relaciones = rel.FindAll(r => r.ActividadVersionOrigen == actividadVersiones.Id);
-            
+            var actividadVersiones = new ActividadVersionesExt
+            {
+                Actividad = actVersiones.Actividad,
+                Activo = actVersiones.Activo,
+                Favorable = actVersiones.Favorable,
+                Id = actVersiones.Id,
+                Iterativo = actVersiones.Iterativo,
+                Observaciones = actVersiones.Observaciones,
+                Relaciones = rel.FindAll(r => r.ActividadVersionOrigen == actVersiones.Id),
+                Relevancia = actVersiones.Relevancia,
+                ActividadId = actVersiones.ActividadId,
+                MedirTiempo = actVersiones.MedirTiempo,
+                TiempoIdeal = actVersiones.TiempoIdeal,
+                TipoActividad = actVersiones.TipoActividad,
+                TipoEtapa = actVersiones.TipoEtapa,
+                VersionProcesoId = actVersiones.VersionProcesoId
+            };
+
             // Guardando solo los datos del caso
             Caso casoDatos = new Caso();
             casoDatos.Id = caso.Id;
@@ -96,7 +112,6 @@ public class PasoConcrete : IPaso
             response.Observaciones = _context.Observaciones.Where(o => o.PasoId == PasoId).ToList();
             response.Secciones = _context.Secciones.Where(s => s.ActividadVersionId == actividadVersiones.Id).OrderBy(s => s.Orden).ToList();
 
-            actividadVersiones.Secciones = null;
             response.Actividad = actividadVersiones;
 
             return new HttpResult(response, HttpStatusCode.OK);
