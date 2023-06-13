@@ -24,6 +24,13 @@ public class CasoController : Controller
         return _caso.NuevoCaso(request);
     }
     
+    [HttpPost("FinalizarPaso/{pasoId}")]
+    public object FinalizarPaso( string pasoId,  FinalizarPasoRequest request)
+    {
+        var user = UserJwt.Get(Request.Headers.Authorization);
+        return _caso.FinalizarPaso(pasoId, request, user);
+    }
+    
     [HttpGet("ObtenerCaso/{id}")]
     public object ObtenerCaso(string id)
     {

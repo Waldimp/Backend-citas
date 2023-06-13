@@ -10,4 +10,5 @@ public interface ICaso
     object FijarProcesoUsuario(string ProcesoId, string UsuarioId);
     object EliminarProcesoFijoUsuario(string ProcesoId, string UsuarioId);
     public Ciclo AsignacionCiclica(string ActividadVersionId);
+    object FinalizarPaso(string pasoId, FinalizarPasoRequest request, string UsuarioId);
 }

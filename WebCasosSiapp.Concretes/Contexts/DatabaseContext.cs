@@ -37,6 +37,7 @@ public class DatabaseContext: DbContext
     public DbSet<Actividades> Actividades { get; set; }
     public DbSet<Observaciones>? Observaciones { get; set; }
     public DbSet<Registro>? Registro { get; set; }
+    public DbSet<Finalizacion>? Finalizacion { get; set; }
     // Model builder
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

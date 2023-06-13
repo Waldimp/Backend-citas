@@ -307,4 +307,100 @@ public class CasoConcrete : ICaso
             return null;
         }
     }
+
+    public object FinalizarPaso(string pasoId, FinalizarPasoRequest request, string usuarioId)
+    {
+        try
+        {
+            Paso pasoActual = _context.Paso.Find(pasoId);
+            Caso caso = _context.Caso.FirstOrDefault(c => c.Id == pasoActual.CasoId);
+            
+            if (request.RelacionId != null) // Se creará otro paso
+            {
+                Relaciones? relacionDestino = _context.Relaciones.Find(request.RelacionId);
+                if (relacionDestino == null)
+                {
+                    return new HttpError(HttpStatusCode.BadRequest, "Relación no encontrada");
+                }
+                
+                // Crear Estado Paso Finalizado
+                EstadoPaso estadoPaso = new EstadoPaso();
+                estadoPaso.Id = Generals.GetUlid();
+                estadoPaso.PasoId = pasoId;
+                estadoPaso.Estado = "Finalizado";
+                estadoPaso.FechaCreacion = DateTime.Now;
+                estadoPaso.AsignadoPor = usuarioId;
+                _context.EstadoPaso.Add(estadoPaso);
+            
+                _context.SaveChanges();
+                
+                ResponsableRequest responsable = new ResponsableRequest
+                {
+                    UsuarioId = request.ResponsableId,
+                    AsignadoPor = usuarioId,
+                };
+                
+                NuevoPasoRequest nuevoPasoRequest = new NuevoPasoRequest();
+                nuevoPasoRequest.Caso = caso;
+                nuevoPasoRequest.ActividadVersionId = relacionDestino.ActividadVersionDestino;
+                nuevoPasoRequest.TipoMovimiento = relacionDestino.TipoMovimiento;
+                nuevoPasoRequest.Responsable = responsable;
+                        
+                // Crear Paso
+                Paso paso = CrearPaso(nuevoPasoRequest);
+                
+                // Llamar Notificaciones Signal R
+
+                return caso != null ? 
+                    new HttpResult(caso, HttpStatusCode.OK) : 
+                    new HttpError(HttpStatusCode.BadRequest, "Error al guardar caso. ");
+            }
+            
+            
+            // Se finaliza el paso y el CASO
+            if (request.Estado == null)
+            {
+                return new HttpError(HttpStatusCode.BadRequest, "El estado es requerido para finalizar la actividad");
+            }
+            
+            // Crear Estado Paso Finalizado
+            EstadoPaso estadoPasoFinalizado = new EstadoPaso();
+            estadoPasoFinalizado.Id = Generals.GetUlid();
+            estadoPasoFinalizado.PasoId = pasoId;
+            estadoPasoFinalizado.Estado = "Finalizado";
+            estadoPasoFinalizado.FechaCreacion = DateTime.Now;
+            estadoPasoFinalizado.AsignadoPor = usuarioId;
+            _context.EstadoPaso.Add(estadoPasoFinalizado);
+            _context.SaveChanges();
+                
+            // Actualizar Caso a Campo Abierto false (finalizado)
+            caso.Abierto = false;
+            _context.Caso.Update(caso);
+            if (_context.SaveChanges() > 1)
+            {
+                // Agregar finalizacion
+                Finalizacion final = new Finalizacion
+                {
+                    Id = Generals.GetUlid(),
+                    PasoId = pasoId,
+                    Justificacion = request.Justificacion,
+                    Estado = request.Estado,
+                    Activo = true,
+                    FechaCreacion = DateTime.Now,
+                    CreadoPor = usuarioId
+                };
+                _context.Finalizacion.Add(final);
+                _context.SaveChanges();
+                    
+                return new HttpResult(caso, HttpStatusCode.OK);
+                    
+            }
+                
+            return new HttpError(HttpStatusCode.BadRequest, "Error al finalizar caso. ");
+        }catch (Exception ex)
+        {
+            return new HttpError(HttpStatusCode.BadRequest,
+                "Error en la petición: " + ex.Message);
+        }
+    }
 }
