@@ -24,4 +24,10 @@ public class ObservacionController : Controller
         var user = UserJwt.Get(Request.Headers.Authorization);
         return _observacion.Create(datos, user);
     }
+    
+    [HttpGet("Index/{pasoId}")]
+    public object Index(string pasoId)
+    {
+        return _observacion.Index(pasoId);
+    }
 }
