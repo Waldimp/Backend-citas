@@ -29,31 +29,18 @@ public class CasoController : Controller
     {
         var respuesta = _caso.NuevoCaso(request);
         if (respuesta.Responsables == null) return respuesta.Response;
-        foreach (var responsable in respuesta.Responsables)
-        {
-            var resResumen = _data.GetProcessesVersionsList(responsable.UsuarioId);
-            var grupoResumen = "pvl" + responsable.UsuarioId;
-            await _hub.Clients.Group(grupoResumen).SendAsync("getProcessesVersionsList", resResumen);
-
-            var resNuevo = _data.GetNewActivitiesList(responsable.UsuarioId);
-            var grupoNuevo = "nal" + responsable.UsuarioId;
-            await _hub.Clients.Group(grupoNuevo).SendAsync("getNewActivitiesList", resNuevo);
-
-            if (respuesta.VersionId != null)
-            {
-                var resDetalle = _data.GetDetailActivitiesList(responsable.UsuarioId, respuesta.VersionId);
-                var grupoDetalle = "dpv" + responsable.UsuarioId + "**" + respuesta.VersionId;
-                await _hub.Clients.Group(grupoDetalle).SendAsync("getDetailProcessesVersionList", resDetalle);
-            }
-        }
+        await SendSignal.Send(_hub, _data, respuesta);
         return respuesta.Response;
     }
     
     [HttpPost("FinalizarPaso/{pasoId}")]
-    public object FinalizarPaso( string pasoId,  FinalizarPasoRequest request)
+    public async Task<object> FinalizarPaso( string pasoId,  FinalizarPasoRequest request)
     {
         var user = UserJwt.Get(Request.Headers.Authorization);
-        return _caso.FinalizarPaso(pasoId, request, user);
+        var respuesta = _caso.FinalizarPaso(pasoId, request, user);
+        if (respuesta.Responsables == null) return respuesta.Response;
+        await SendSignal.Send(_hub, _data, respuesta);
+        return respuesta.Response;
     }
     
     [HttpGet("ObtenerCaso/{id}")]

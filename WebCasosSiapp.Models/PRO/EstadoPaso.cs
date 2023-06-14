@@ -8,5 +8,5 @@ public class EstadoPaso
     public string PasoId { get; set; }
     public string Estado { get; set; }
     public DateTime FechaCreacion { get; set; }
-    public string AsignadoPor { get; set; }
+    public string? AsignadoPor { get; set; }
 }

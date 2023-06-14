@@ -10,5 +10,5 @@ public class Finalizacion
     public string Estado { get; set; }
     public bool Activo { get; set; }
     public DateTime FechaCreacion { get; set; }
-    public string CreadoPor { get; set; }
+    public string? CreadoPor { get; set; }
 }

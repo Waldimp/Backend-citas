@@ -1,7 +1,9 @@
+using WebCasosSiapp.ViewModels.Responses;
+
 namespace WebCasosSiapp.Interfaces;
 
 public interface IPaso
 {
-    object MarcarPasoLeido(string PasoId);
+    SignalResponse MarcarPasoLeido(string PasoId, string? user);
     object DatosDePaso(string PasoId);
 }

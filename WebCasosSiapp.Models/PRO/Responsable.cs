@@ -9,5 +9,5 @@ public class Responsable
     public string PasoId { get; set; }
     public string UsuarioId { get; set; }
     public DateTime FechaCreacion { get; set; }
-    public string AsignadoPor { get; set; }
+    public string? AsignadoPor { get; set; }
 }

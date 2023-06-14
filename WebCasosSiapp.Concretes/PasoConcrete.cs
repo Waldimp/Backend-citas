@@ -18,28 +18,52 @@ public class PasoConcrete : IPaso
         _context = context;
     }
 
-    public object MarcarPasoLeido(string PasoId)
+    public SignalResponse MarcarPasoLeido(string PasoId, string? user)
     {
         try
         {
+            if (user == null)
+                return new SignalResponse
+                {
+                    Response = new HttpError(HttpStatusCode.BadRequest, "Usuario no válido. "),
+                    Responsables = null,
+                    VersionId = null
+                };
+            
             EstadoPaso estadoPaso = new EstadoPaso();
             estadoPaso.Id = Generals.GetUlid();
             estadoPaso.PasoId = PasoId;
             estadoPaso.Estado = "En proceso";
             estadoPaso.FechaCreacion = DateTime.Now;
-            estadoPaso.AsignadoPor = "SIAPP";
+            estadoPaso.AsignadoPor = user;
+
+            var version = _context.ActividadVersiones
+                .Where(av => av.Id == _context.Paso.Where(p => p.Id == PasoId).Select(p => p.Id).Single())
+                .Select(av => av.VersionProcesoId).Single();
                             
             _context.EstadoPaso.Add(estadoPaso);
             if (_context.SaveChanges() == 1)
             {
-                return new HttpResult(estadoPaso, HttpStatusCode.OK);
+                return new SignalResponse
+                {
+                    Response = new HttpResult(estadoPaso, HttpStatusCode.OK),
+                    Responsables = _context.Responsable?.Where(r => r.UsuarioId == user && r.PasoId == PasoId).ToList(),
+                    VersionId = version
+                };
             }
-            return new HttpError(HttpStatusCode.BadRequest, "Error al marcar como leido. ");
+
+            return new SignalResponse
+            {
+                Response = new HttpError(HttpStatusCode.BadRequest, "Error al marcar como leido. ")
+            };
         }
         catch (Exception ex)
         {
-            return new HttpError(HttpStatusCode.BadRequest,
-                "Error en la petición: " + ex.Message);
+            return new SignalResponse
+            {
+                Response = new HttpError(HttpStatusCode.BadRequest,
+                    "Error en la petición: " + ex.Message)
+            };
         }
 
     }

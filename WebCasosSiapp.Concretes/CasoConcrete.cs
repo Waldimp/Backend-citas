@@ -349,7 +349,7 @@ public class CasoConcrete : ICaso
         }
     }
 
-    public object FinalizarPaso(string pasoId, FinalizarPasoRequest request, string usuarioId)
+    public SignalResponse FinalizarPaso(string pasoId, FinalizarPasoRequest request, string? usuarioId)
     {
         try
         {
@@ -361,7 +361,10 @@ public class CasoConcrete : ICaso
                 Relaciones? relacionDestino = _context.Relaciones.Find(request.RelacionId);
                 if (relacionDestino == null)
                 {
-                    return new HttpError(HttpStatusCode.BadRequest, "Relación no encontrada");
+                    return new SignalResponse
+                    {
+                        Response = new HttpError(HttpStatusCode.BadRequest, "Relación no encontrada")
+                    };
                 }
                 
                 // Crear Estado Paso Finalizado
@@ -392,16 +395,30 @@ public class CasoConcrete : ICaso
                 
                 // Llamar Notificaciones Signal R
 
-                return caso != null ? 
-                    new HttpResult(caso, HttpStatusCode.OK) : 
-                    new HttpError(HttpStatusCode.BadRequest, "Error al guardar caso. ");
+                return caso != null
+                    ? new SignalResponse
+                    {
+                        Response = new HttpResult(caso, HttpStatusCode.OK),
+                        VersionId = _context.ActividadVersiones
+                            ?.Where(av => av.Id == nuevoPasoRequest.ActividadVersionId)
+                            .Select(av => av.VersionProcesoId).Single(),
+                        Responsables = _context.Responsable?.Where(r => r.UsuarioId == usuarioId && r.PasoId == paso.Id).ToList()
+                    }
+                    : new SignalResponse
+                    {
+                        Response = new HttpError(HttpStatusCode.BadRequest, "Error al guardar caso. ")
+                    };
             }
             
             
             // Se finaliza el paso y el CASO
             if (request.Estado == null)
             {
-                return new HttpError(HttpStatusCode.BadRequest, "El estado es requerido para finalizar la actividad");
+                return new SignalResponse
+                {
+                    Response = new HttpError(HttpStatusCode.BadRequest,
+                        "El estado es requerido para finalizar la actividad")
+                };
             }
             
             // Crear Estado Paso Finalizado
@@ -432,16 +449,30 @@ public class CasoConcrete : ICaso
                 };
                 _context.Finalizacion.Add(final);
                 _context.SaveChanges();
-                    
-                return new HttpResult(caso, HttpStatusCode.OK);
-                    
+
+                return new SignalResponse
+                {
+                    Response = new HttpResult(caso, HttpStatusCode.OK),
+                    Responsables = _context.Responsable.Where(r => r.UsuarioId == usuarioId && r.PasoId == pasoId)
+                        .ToList(),
+                    VersionId = _context.ActividadVersiones
+                        .Where(av => av.Id == _context.Paso.Where(p => p.Id == pasoId).Select(p => p.Id).Single())
+                        .Select(av => av.VersionProcesoId).Single()
+                };
+
             }
-                
-            return new HttpError(HttpStatusCode.BadRequest, "Error al finalizar caso. ");
+
+            return new SignalResponse
+            {
+                Response = new HttpError(HttpStatusCode.BadRequest, "Error al finalizar caso. ")
+            };
         }catch (Exception ex)
         {
-            return new HttpError(HttpStatusCode.BadRequest,
-                "Error en la petición: " + ex.Message);
+            return new SignalResponse
+            {
+                Response = new HttpError(HttpStatusCode.BadRequest,
+                    "Error en la petición: " + ex.Message)
+            };
         }
     }
 }
