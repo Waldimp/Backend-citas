@@ -93,6 +93,14 @@ public class PasoConcrete : IPaso
                 TipoEtapa = actVersiones.TipoEtapa,
                 VersionProcesoId = actVersiones.VersionProcesoId
             };
+            
+            // Obtener todos los casos y a partir de ellos obtener los registros de todos los casos
+            List<Paso> pasosCaso = _context.Paso.Where(p => p.CasoId == caso.Id).ToList();
+            List<Registro> allRegistros = new List<Registro>();
+            foreach (var reg in pasosCaso.Select(pasoC => _context.Registro.Where(r => r.PasoId == pasoC.Id).ToList()))
+            {
+                allRegistros.AddRange(reg);
+            }
 
             // Guardando solo los datos del caso
             Caso casoDatos = new Caso();
@@ -102,6 +110,7 @@ public class PasoConcrete : IPaso
             casoDatos.Abierto = caso.Abierto;
             casoDatos.ComentarioApertura = caso.ComentarioApertura;
             casoDatos.CasoAsociado = caso.CasoAsociado;
+            casoDatos.Pasos = null;
             
             //Creando response 
             PasoResponse response = new PasoResponse();
@@ -111,9 +120,9 @@ public class PasoConcrete : IPaso
             response.Responsables = _context.Responsable.Where(r => r.PasoId == PasoId).ToList();
             response.Observaciones = _context.Observaciones.Where(o => o.PasoId == PasoId).ToList();
             response.Secciones = _context.Secciones.Where(s => s.ActividadVersionId == actividadVersiones.Id).OrderBy(s => s.Orden).ToList();
-
+            response.Registros = allRegistros;
             response.Actividad = actividadVersiones;
-
+            
             return new HttpResult(response, HttpStatusCode.OK);
         }
         catch (Exception ex)

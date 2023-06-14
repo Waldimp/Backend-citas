@@ -33,11 +33,16 @@ public class RegistroConcrete : IRegistro
             if (_ctx.SaveChanges() != 1)
                 return new HttpError(HttpStatusCode.BadRequest, "Error no se pudo guardar registro");
 
-            var secciones = _ctx.Secciones?.Where(s =>
-                s.ActividadVersionId == _ctx.Secciones.Where(s2 => s2.Id == datos.SeccionId)
-                .Select(s2 => s2.ActividadVersionId).Single()).OrderBy(s => s.Orden).ToList();
-            _ctx.Registro?.Where(r => r.PasoId == datos.PasoId).ToList();
-            return new HttpResult(secciones, HttpStatusCode.OK);
+            Caso caso = _ctx.Caso.First(c => c.Id == _ctx.Paso.Where(p => p.Id == datos.PasoId).Select(p => p.CasoId).Single());
+            // Obtener todos los pasos y a partir de ellos obtener los registros de todos los pasos
+            List<Paso> pasosCaso = _ctx.Paso.Where(p => p.CasoId == caso.Id).ToList();
+            List<Registro> registros = new List<Registro>();
+            foreach (var reg in pasosCaso.Select(pasoC => _ctx.Registro.Where(r => r.PasoId == pasoC.Id).ToList()))
+            {
+                registros.AddRange(reg);
+            }
+            
+            return new HttpResult(registros, HttpStatusCode.OK);
         }
         catch (Exception e)
         {
