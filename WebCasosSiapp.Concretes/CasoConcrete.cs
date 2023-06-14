@@ -417,7 +417,7 @@ public class CasoConcrete : ICaso
             // Actualizar Caso a Campo Abierto false (finalizado)
             caso.Abierto = false;
             _context.Caso.Update(caso);
-            if (_context.SaveChanges() > 1)
+            if (_context.SaveChanges() == 1)
             {
                 // Agregar finalizacion
                 Finalizacion final = new Finalizacion
