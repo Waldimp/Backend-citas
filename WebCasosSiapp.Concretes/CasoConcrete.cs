@@ -456,7 +456,7 @@ public class CasoConcrete : ICaso
                     Responsables = _context.Responsable.Where(r => r.UsuarioId == usuarioId && r.PasoId == pasoId)
                         .ToList(),
                     VersionId = _context.ActividadVersiones
-                        .Where(av => av.Id == _context.Paso.Where(p => p.Id == pasoId).Select(p => p.Id).Single())
+                        .Where(av => av.Id == _context.Paso.Where(p => p.Id == pasoId).Select(p => p.ActividadVersionId).Single())
                         .Select(av => av.VersionProcesoId).Single()
                 };
 

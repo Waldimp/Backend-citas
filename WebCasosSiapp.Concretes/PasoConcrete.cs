@@ -38,7 +38,7 @@ public class PasoConcrete : IPaso
             estadoPaso.AsignadoPor = user;
 
             var version = _context.ActividadVersiones
-                .Where(av => av.Id == _context.Paso.Where(p => p.Id == PasoId).Select(p => p.Id).Single())
+                .Where(av => av.Id == _context.Paso.Where(p => p.Id == PasoId).Select(p => p.ActividadVersionId).Single())
                 .Select(av => av.VersionProcesoId).Single();
                             
             _context.EstadoPaso.Add(estadoPaso);
