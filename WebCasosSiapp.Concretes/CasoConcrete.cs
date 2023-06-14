@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.SignalR;
 using ServiceStack;
 using ServiceStack.Text;
 using WebCasosSiapp.Concretes.Contexts;
@@ -7,6 +8,7 @@ using WebCasosSiapp.Interfaces;
 using WebCasosSiapp.Models.PRO;
 using WebCasosSiapp.Models.SIS;
 using WebCasosSiapp.ViewModels.Requests;
+using WebCasosSiapp.ViewModels.Responses;
 
 namespace WebCasosSiapp.Concretes;
 
@@ -19,7 +21,7 @@ public class CasoConcrete : ICaso
         _context = context;
     }
 
-    public object NuevoCaso(NuevoCasoRequest request)
+    public SignalResponse NuevoCaso(NuevoCasoRequest request)
     {
         Caso caso = new Caso();
         try
@@ -40,7 +42,13 @@ public class CasoConcrete : ICaso
                     _context.VersionProcesos.FirstOrDefault(v => v.ProcesoId == request.ProcesoId && v.Activo == true);
 
                 if (verPro == null)
-                    return new HttpError(HttpStatusCode.BadRequest, "No existe versión activa para este proceso. ");
+                    return new SignalResponse
+                    {
+                        Response = new HttpError(HttpStatusCode.BadRequest,
+                            "No existe versión activa para este proceso. "),
+                        Responsables = null,
+                        VersionId = null
+                    };
 
                 //buscar la primera actividad
                 ActividadVersiones act =
@@ -56,7 +64,12 @@ public class CasoConcrete : ICaso
                             .FirstOrDefault(emp => emp.CodigoUsuario == request.Responsable.UsuarioId);
                         if (personaEmpleado == null)
                         {
-                            return new HttpError(HttpStatusCode.BadRequest, "Error al ingresar el cliente. ");
+                            return new SignalResponse
+                            {
+                                Response = new HttpError(HttpStatusCode.BadRequest, "Error al ingresar el cliente. "),
+                                Responsables = null,
+                                VersionId = null
+                            };
                         }
                         
                         CasoCliente casoCliente = new CasoCliente();
@@ -90,24 +103,52 @@ public class CasoConcrete : ICaso
                         // Crear Paso
                         Paso paso = CrearPaso(nuevoPasoRequest);
 
-                        return caso != null ? 
-                            new HttpResult(caso, HttpStatusCode.OK) : 
-                            new HttpError(HttpStatusCode.BadRequest, "Error al guardar caso. ");
+                        return caso != null
+                            ? new SignalResponse
+                            {
+                                Response = new HttpResult(caso, HttpStatusCode.OK), Responsables = paso.Responsables,
+                                VersionId = verPro.Id
+                            }
+                            : new SignalResponse
+                            {
+                                Response = new HttpError(HttpStatusCode.BadRequest, "Error al guardar caso. "),
+                                Responsables = null,
+                                VersionId = null
+                            };
                     }
 
-                    return new HttpError(HttpStatusCode.BadRequest, "Error al ingresar los clientes. ");
+                    return new SignalResponse
+                    {
+                        Response = new HttpError(HttpStatusCode.BadRequest, "Error al ingresar los clientes. "),
+                        Responsables = null,
+                        VersionId = null
+                    };
                 }
 
-                return new HttpError(HttpStatusCode.BadRequest, "No se encontró actividad para este proceso. ");
+                return new SignalResponse
+                {
+                    Response = new HttpError(HttpStatusCode.BadRequest, "No se encontró actividad para este proceso. "),
+                    Responsables = null,
+                    VersionId = null
+                };
             }
 
-            return new HttpError(HttpStatusCode.BadRequest,
-                "Error en la petición. ");
+            return new SignalResponse
+            {
+                Response = new HttpError(HttpStatusCode.BadRequest,
+                    "Error en la petición. "),
+                Responsables = null,
+                VersionId = null
+            };
         }
         catch (Exception ex)
         {
-            return new HttpError(HttpStatusCode.BadRequest,
-                "Error en la petición: " + ex.Message);
+            return new SignalResponse
+            {
+                Response = new HttpError(HttpStatusCode.BadRequest,
+                    "Error en la petición: " + ex.Message),
+                Responsables = null
+            };
         }
 
     }

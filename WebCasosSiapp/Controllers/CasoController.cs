@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using WebCasosSiapp.Functions;
+using WebCasosSiapp.Hubs;
 using WebCasosSiapp.Interfaces;
 using WebCasosSiapp.ViewModels.Requests;
 
@@ -12,16 +14,39 @@ namespace WebCasosSiapp.Controllers;
 public class CasoController : Controller
 {
     private readonly ICaso _caso;
+    private readonly IHubContext<CaseHub> _hub;
+    private readonly IHubData _data;
 
-    public CasoController(ICaso caso)
+    public CasoController(ICaso caso, IHubContext<CaseHub> hub, IHubData data)
     {
         _caso = caso;
+        _hub = hub;
+        _data = data;
     }
     
     [HttpPost("NuevoCaso")]
-    public object NuevoCaso(NuevoCasoRequest request)
+    public async Task<object> NuevoCaso(NuevoCasoRequest request)
     {
-        return _caso.NuevoCaso(request);
+        var respuesta = _caso.NuevoCaso(request);
+        if (respuesta.Responsables == null) return respuesta.Response;
+        foreach (var responsable in respuesta.Responsables)
+        {
+            var resResumen = _data.GetProcessesVersionsList(responsable.UsuarioId);
+            var grupoResumen = "pvl" + responsable.UsuarioId;
+            await _hub.Clients.Group(grupoResumen).SendAsync("getProcessesVersionsList", resResumen);
+
+            var resNuevo = _data.GetNewActivitiesList(responsable.UsuarioId);
+            var grupoNuevo = "nal" + responsable.UsuarioId;
+            await _hub.Clients.Group(grupoNuevo).SendAsync("getNewActivitiesList", resNuevo);
+
+            if (respuesta.VersionId != null)
+            {
+                var resDetalle = _data.GetDetailActivitiesList(responsable.UsuarioId, respuesta.VersionId);
+                var grupoDetalle = "dpv" + responsable.UsuarioId + "**" + respuesta.VersionId;
+                await _hub.Clients.Group(grupoDetalle).SendAsync("getDetailProcessesVersionList", resDetalle);
+            }
+        }
+        return respuesta.Response;
     }
     
     [HttpPost("FinalizarPaso/{pasoId}")]
