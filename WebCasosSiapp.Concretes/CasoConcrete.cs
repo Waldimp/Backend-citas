@@ -97,7 +97,7 @@ public class CasoConcrete : ICaso
                         NuevoPasoRequest nuevoPasoRequest = new NuevoPasoRequest();
                         nuevoPasoRequest.Caso = caso;
                         nuevoPasoRequest.ActividadVersionId = act.Id;
-                        nuevoPasoRequest.TipoMovimiento = "Monousuario";
+                        nuevoPasoRequest.TipoSeleccion = "monousuario";
                         nuevoPasoRequest.Responsable = request.Responsable;
                         
                         // Crear Paso
@@ -179,12 +179,12 @@ public class CasoConcrete : ICaso
             EstadoPaso estadoPaso = new EstadoPaso();
             estadoPaso.Id = Generals.GetUlid();
             estadoPaso.PasoId = paso.Id;
-            estadoPaso.Estado = request.TipoMovimiento == "Autoservicio" ? "Grupo" : "Nuevo";
+            estadoPaso.Estado = request.TipoSeleccion == "autoservicio" ? "Grupo" : "Nuevo";
             estadoPaso.FechaCreacion = DateTime.Now;
             estadoPaso.AsignadoPor = "SIAPP";
             _context.EstadoPaso.Add(estadoPaso);
 
-            if (request.TipoMovimiento != "Autoservicio") // Si es autoservicio no se agrega responsable
+            if (request.TipoSeleccion != "autoservicio") // Si es autoservicio no se agrega responsable
             {
                 //Crear Responsable
                 Responsable responsable = new Responsable();
@@ -192,7 +192,7 @@ public class CasoConcrete : ICaso
                 responsable.PasoId = paso.Id;
                 responsable.FechaCreacion = DateTime.Now;
 
-                if (request.TipoMovimiento == "Ciclico")
+                if (request.TipoSeleccion == "ciclico")
                 {
                     Ciclo ciclo = AsignacionCiclica(request.ActividadVersionId);
                     if (ciclo != null)
@@ -211,7 +211,7 @@ public class CasoConcrete : ICaso
             }
             
             int res = _context.SaveChanges();
-            if (res > 1)
+            if (res > 0)
             {
                 _context.CasoCliente.ToList();
                 _context.EstadoPaso.ToList();
@@ -303,7 +303,7 @@ public class CasoConcrete : ICaso
                 ciclo.UsuarioId = usuariosList.First().CodigoUsuario;
                 ciclo.Nuevo = true;
                 _context.Ciclo.Add(ciclo);
-                if (_context.SaveChanges() == 1)
+                if (_context.SaveChanges() > 0)
                 {
                     return ciclo;
                 }
@@ -324,7 +324,7 @@ public class CasoConcrete : ICaso
                         ciclo.Nuevo = false;
 
                         _context.Ciclo.Add(ciclo);
-                        if (_context.SaveChanges() == 1)
+                        if (_context.SaveChanges() > 0)
                         {
                             return ciclo;
                         }
@@ -335,7 +335,7 @@ public class CasoConcrete : ICaso
                 ciclo.UsuarioId = usuariosList.First().CodigoUsuario;
                 ciclo.Nuevo = true;
                 _context.Ciclo.Add(ciclo);
-                if (_context.SaveChanges() == 1)
+                if (_context.SaveChanges() > 0)
                 {
                     return ciclo;
                 }
@@ -387,7 +387,7 @@ public class CasoConcrete : ICaso
                 NuevoPasoRequest nuevoPasoRequest = new NuevoPasoRequest();
                 nuevoPasoRequest.Caso = caso;
                 nuevoPasoRequest.ActividadVersionId = relacionDestino.ActividadVersionDestino;
-                nuevoPasoRequest.TipoMovimiento = relacionDestino.TipoMovimiento;
+                nuevoPasoRequest.TipoSeleccion = relacionDestino.TipoSeleccion;
                 nuevoPasoRequest.Responsable = responsable;
                         
                 // Crear Paso
