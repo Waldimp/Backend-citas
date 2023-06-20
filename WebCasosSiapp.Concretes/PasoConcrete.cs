@@ -114,6 +114,7 @@ public class PasoConcrete : IPaso
                 TiempoIdeal = actVersiones.TiempoIdeal,
                 TipoActividad = actVersiones.TipoActividad,
                 TipoEtapa = actVersiones.TipoEtapa,
+                ResumenDatos = actVersiones.ResumenDatos,
                 VersionProcesoId = actVersiones.VersionProcesoId
             };
             
