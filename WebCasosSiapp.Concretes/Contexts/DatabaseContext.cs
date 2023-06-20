@@ -19,13 +19,13 @@ public class DatabaseContext: DbContext
     public DbSet<Vw_CasosApertura>? VwCasosApertura { get; set; }
     public DbSet<VwCasoTiempoRes>? VwCasosTiempoResponsables { get; set; }
     public DbSet<Caso>? Caso { get; set; }
-    public DbSet<CasoCliente>? CasoCliente { get; set; }
+    public DbSet<CasoCliente> CasoCliente { get; set; }
     public DbSet<Paso>? Paso { get; set; }
     public DbSet<EstadoPaso>? EstadoPaso { get; set; }
     public DbSet<Responsable>? Responsable { get; set; }
     public DbSet<ActividadVersiones>? ActividadVersiones { get; set; }
     public DbSet<VersionProcesos>? VersionProcesos { get; set; }
-    public DbSet<PersonasNaturales>? PersonasNaturales { get; set; }
+    public DbSet<PersonasNaturales> PersonasNaturales { get; set; }
     public DbSet<ProcesoFijoUsuario>? ProcesoFijoUsuario { get; set; }
     public DbSet<Ciclo>? Ciclo { get; set; }
     public DbSet<ActividadVersionPerfil> ActividadVersionPerfil { get; set; }
@@ -38,6 +38,8 @@ public class DatabaseContext: DbContext
     public DbSet<Observaciones>? Observaciones { get; set; }
     public DbSet<Registro>? Registro { get; set; }
     public DbSet<Finalizacion>? Finalizacion { get; set; }
+    public DbSet<Proceso>? Procesos { get; set; }
+    public DbSet<Unidad>? Unidades { get; set; }
     // Model builder
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

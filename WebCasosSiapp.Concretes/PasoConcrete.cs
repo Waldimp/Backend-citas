@@ -136,6 +136,38 @@ public class PasoConcrete : IPaso
             casoDatos.CasoAsociado = caso.CasoAsociado;
             casoDatos.Pasos = null;
             
+            // Datos del proceso
+            var proceso = _context.Procesos.Where(p =>
+                p.Id == _context.VersionProcesos.Where(vp => vp.Id == actividadVersiones.VersionProcesoId)
+                    .Select(vp => vp.ProcesoId).Single()).Select(p => new ProcesoResumen
+            {
+                Codigo = p.Codigo,
+                Id = p.Id,
+                Interno = p.Interno,
+                Nombre = p.Nombre,
+                Unidad = _context.Unidades.Where(u => u.CodigoUnidades == p.CodigoUnidad).Select(u => u.Unidades)
+                    .Single(),
+                Version = _context.VersionProcesos.Where(v => v.Id == actividadVersiones.VersionProcesoId)
+                    .Select(v => v.NumeroVersion).Single()
+            }).Single();
+
+            var clientes = _context.CasoCliente.Join(_context.PersonasNaturales, cc => cc.ClienteId,
+                pn => pn.CodigoPersona, (cc, p) => new ClienteResumen
+                {
+                    Apellidos = p.Apellido1 + (p.ApellidoCasada != null && p.ApellidoCasada != "-"
+                        ? " " + p.ApellidoCasada
+                        : p.Apellido2 != null && p.Apellido2 != "-"
+                            ? " " + p.Apellido2
+                            : ""),
+                    Nombres = p.Nombre1 + (p.Nombre2 != null && p.Nombre2 != "-" ? " " + p.Nombre2 : "") +
+                              (p.Nombre3 != null && p.Nombre3 != "-" ? " " + p.Nombre3 : ""),
+                    Documento = p.CodigoNumeroDui,
+                    Foto = p.Foto,
+                    CodigoPersona = p.CodigoPersona,
+                    FechaNacimiento = p.FechaNacimiento,
+                    Sexo = p.Sexo, CasoId = cc.CasoId
+                }).Where(c => c.CasoId == casoDatos.Id).ToList();
+ 
             //Creando response 
             PasoResponse response = new PasoResponse();
             response.Id = PasoId;
@@ -146,6 +178,8 @@ public class PasoConcrete : IPaso
             response.Secciones = _context.Secciones.Where(s => s.ActividadVersionId == actividadVersiones.Id).OrderBy(s => s.Orden).ToList();
             response.Registros = allRegistros;
             response.Actividad = actividadVersiones;
+            response.Proceso = proceso;
+            response.Clientes = clientes;
             
             return new HttpResult(response, HttpStatusCode.OK);
         }

@@ -29,4 +29,5 @@ public class PersonasNaturales
     public string CodigoUbicacionNacionalidad { get; set; }
     public string? HuellasDactilares { get; set; }
     public string? CodigoNivelAcademico { get; set; }
+    public string? Foto { get; set; }
 }
