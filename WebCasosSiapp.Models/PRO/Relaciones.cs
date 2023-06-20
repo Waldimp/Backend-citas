@@ -10,7 +10,6 @@ public class Relaciones
     public string ActividadVersionDestino { get; set; }
     public string TipoMovimiento { get; set; }
     public string? Accion { get; set; }
-    public bool ResumenDatos { get; set; }
     public string? TipoSeleccion { get; set; }
 }
 
@@ -21,7 +20,6 @@ public class RelacionesExt
     public string ActividadVersionDestino { get; set; }
     public string TipoMovimiento { get; set; }
     public string? Accion { get; set; }
-    public bool ResumenDatos { get; set; }
     public string? TipoSeleccion { get; set; }
  
     // Nombres de las actividades
