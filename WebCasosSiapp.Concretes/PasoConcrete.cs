@@ -85,7 +85,6 @@ public class PasoConcrete : IPaso
             {
                 Id = r.Id,
                 Accion = r.Accion,
-                ResumenDatos = r.ResumenDatos,
                 TipoMovimiento = r.TipoMovimiento,
                 TipoSeleccion = r.TipoSeleccion,
                 ActividadVersionDestino = r.ActividadVersionDestino,
