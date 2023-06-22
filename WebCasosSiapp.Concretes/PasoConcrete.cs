@@ -165,7 +165,7 @@ public class PasoConcrete : IPaso
                     CodigoPersona = p.CodigoPersona,
                     FechaNacimiento = p.FechaNacimiento,
                     Sexo = p.Sexo, CasoId = cc.CasoId
-                }).Where(c => c.CasoId == casoDatos.Id).ToList();
+                }).Where(c => c.CasoId == casoDatos.Id).OrderBy(c => c.Apellidos).ToList();
  
             //Creando response 
             PasoResponse response = new PasoResponse();
