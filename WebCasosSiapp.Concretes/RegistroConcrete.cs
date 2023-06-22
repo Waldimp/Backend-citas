@@ -50,24 +50,4 @@ public class RegistroConcrete : IRegistro
                 "Error en la petición: " + e.Message);
         }
     }
-    
-    public object Index(string casoId)
-    {
-        try
-        {
-            List<Paso> pasosCaso = _ctx.Paso.Where(p => p.CasoId == casoId).ToList();
-            List<Registro> registros = new List<Registro>();
-            foreach (var reg in pasosCaso.Select(pasoC => _ctx.Registro.Where(r => r.PasoId == pasoC.Id).ToList()))
-            {
-                registros.AddRange(reg);
-            }
-
-            return new HttpResult(registros, HttpStatusCode.OK);
-        }
-        catch (Exception e)
-        {
-            return new HttpError(HttpStatusCode.BadRequest,
-                "Error en la petición: " + e.Message);
-        }
-    }
 }

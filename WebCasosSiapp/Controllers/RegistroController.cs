@@ -23,9 +23,4 @@ public class RegistroController : Controller
         return _registro.Create(datos);
     }
     
-    [HttpGet("Index/{casoId}")]
-    public object Index(string casoId)
-    {
-        return _registro.Index(casoId);
-    }
 }
