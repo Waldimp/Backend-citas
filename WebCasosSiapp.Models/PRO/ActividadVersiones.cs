@@ -16,7 +16,7 @@ public class ActividadVersiones
     public string TipoEtapa { get; set; }
     public bool? Iterativo { get; set; }
     public string VersionProcesoId { get; set; }
-    
+    public bool? ResumenDatos { get; set; }
     public string ActividadId { get; set; }
     public Actividades? Actividad { get; set; }
     
@@ -37,7 +37,7 @@ public class ActividadVersionesExt
     public string TipoEtapa { get; set; }
     public bool? Iterativo { get; set; }
     public string VersionProcesoId { get; set; }
-    
+    public bool? ResumenDatos { get; set; }
     public string ActividadId { get; set; }
     public Actividades? Actividad { get; set; }
     
