@@ -9,4 +9,5 @@ public class Registro
     public string? PasoId { get; set; }
     public string? SeccionId { get; set; }
     public string RegistroId { get; set; }
+    public DateTime FechaRegistro { get; set; }
 }

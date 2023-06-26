@@ -8,5 +8,6 @@ public class HubConnectionResponse
     {
         public string Nombre { get; set; }
         public List<VwCasoTiempoRes> Abiertos { get; set; }
+        public List<VwCasoTiempoRes> Cerrados { get; set; }
     }
 }

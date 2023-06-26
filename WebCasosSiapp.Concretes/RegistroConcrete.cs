@@ -26,7 +26,8 @@ public class RegistroConcrete : IRegistro
                 Id = Generals.GetUlid(),
                 PasoId = datos.PasoId,
                 RegistroId = datos.RegistroId,
-                SeccionId = datos.SeccionId
+                SeccionId = datos.SeccionId,
+                FechaRegistro = DateTime.Now
             };
 
             _ctx.Registro?.Add(registro);

@@ -52,13 +52,19 @@ public class HubDataConcrete : IHubData
             ?.Where(vt =>
                 vt.UsuarioIdResponsable == user && vt.VersionProcesoId == version && vt.Estado != "Finalizado")
             .ToList().OrderBy(vt => customOrder.IndexOf(vt.Estado)).ThenByDescending(vt => vt.FechaEstado).ToList();
+        
+        var listFin = _ctx.VwCasosTiempoResponsables
+            ?.Where(vt =>
+                vt.UsuarioIdResponsable == user && vt.VersionProcesoId == version && vt.Estado == "Finalizado")
+            .ToList().OrderBy(vt => customOrder.IndexOf(vt.Estado)).ThenByDescending(vt => vt.FechaEstado).ToList();
 
         var nombre = list.Count > 0 ? list[0].NombreProceso : "Proceso";
 
         var response = new HubConnectionResponse.DetalleVersionResponse
         {
             Nombre = nombre,
-            Abiertos = list
+            Abiertos = list,
+            Cerrados = listFin
         };
 
         return new HttpResult(response, HttpStatusCode.OK);
