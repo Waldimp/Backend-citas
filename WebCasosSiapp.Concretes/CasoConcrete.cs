@@ -161,7 +161,7 @@ public class CasoConcrete : ICaso
             _context.ActividadVersiones.ToList();
             _context.Actividades.ToList();
             _context.Paso.ToList();
-            _context.CasoCliente.ToList();
+            //_context.CasoCliente.ToList();
             _context.EstadoPaso.ToList();
             _context.Responsable.ToList();
             _context.Secciones.ToList();
@@ -173,7 +173,7 @@ public class CasoConcrete : ICaso
                     seccion.Registros = null;
                 }
             }
-            _context.PersonasNaturales.ToList();
+            //_context.PersonasNaturales.ToList();
             
             ProcesoResumen? proceso = null;
             if (caso.Pasos.Count > 0)
@@ -194,10 +194,28 @@ public class CasoConcrete : ICaso
                 
             }
             
+            var clientes = _context.CasoCliente.Join(_context.PersonasNaturales, cc => cc.ClienteId,
+                pn => pn.CodigoPersona, (cc, p) => new ClienteResumen
+                {
+                    Apellidos = p.Apellido1 + (p.ApellidoCasada != null && p.ApellidoCasada != "-"
+                        ? " " + p.ApellidoCasada
+                        : p.Apellido2 != null && p.Apellido2 != "-"
+                            ? " " + p.Apellido2
+                            : ""),
+                    Nombres = p.Nombre1 + (p.Nombre2 != null && p.Nombre2 != "-" ? " " + p.Nombre2 : "") +
+                              (p.Nombre3 != null && p.Nombre3 != "-" ? " " + p.Nombre3 : ""),
+                    Documento = p.CodigoNumeroDui,
+                    Foto = p.Foto,
+                    CodigoPersona = p.CodigoPersona,
+                    FechaNacimiento = p.FechaNacimiento,
+                    Sexo = p.Sexo, CasoId = cc.CasoId
+                }).Where(c => c.CasoId == id).OrderBy(c => c.Apellidos).ToList();
+            
             CasoResponse response = new CasoResponse()
             {
                 Caso = caso,
-                Proceso = proceso
+                Proceso = proceso,
+                Clientes = clientes
             };
             
             return new HttpResult(response, HttpStatusCode.OK);
