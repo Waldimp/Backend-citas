@@ -89,6 +89,12 @@ public class DatabaseContext: DbContext
             .HasForeignKey(s=>s.PerfilId)
             .HasPrincipalKey(a=>a.CodigoPerfil);
         
+        modelBuilder.Entity<Paso>()
+            .HasOne<ActividadVersiones>(p=>p.ActividadVersion)
+            .WithMany()
+            .HasForeignKey(s=>s.ActividadVersionId)
+            .HasPrincipalKey(a=>a.Id);
+        
         modelBuilder.Entity<ActividadVersiones>()
             .HasOne<VersionProcesos>()
             .WithMany(v => v.Actividades)

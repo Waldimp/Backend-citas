@@ -1,7 +1,9 @@
+using WebCasosSiapp.Models.PRO;
+
 namespace WebCasosSiapp.ViewModels.Responses;
 
 public class CasoResponse
 {
-    
-    
+    public Caso Caso { get; set; }
+    public ProcesoResumen? Proceso { get; set; }
 }

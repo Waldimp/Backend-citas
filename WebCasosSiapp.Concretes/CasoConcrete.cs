@@ -155,13 +155,58 @@ public class CasoConcrete : ICaso
 
     public object ObtenerCaso(string id)
     {
-        var caso = _context.Caso.Where(c => c.Id == id).ToList();
-        _context.Paso.ToList();
-        _context.CasoCliente.ToList();
-        _context.EstadoPaso.ToList();
-        _context.Responsable.ToList();
-        _context.PersonasNaturales.ToList();
-        return caso;
+        try
+        {
+            Caso caso = _context.Caso.First(c => c.Id == id);
+            _context.ActividadVersiones.ToList();
+            _context.Actividades.ToList();
+            _context.Paso.ToList();
+            _context.CasoCliente.ToList();
+            _context.EstadoPaso.ToList();
+            _context.Responsable.ToList();
+            _context.Secciones.ToList();
+            _context.Registro.ToList();
+            foreach (var paso in caso.Pasos)
+            {
+                foreach (var seccion in paso.ActividadVersion.Secciones)
+                {
+                    seccion.Registros = null;
+                }
+            }
+            _context.PersonasNaturales.ToList();
+            
+            ProcesoResumen? proceso = null;
+            if (caso.Pasos.Count > 0)
+            {
+                proceso = _context.Procesos.Where(p =>
+                    p.Id == _context.VersionProcesos.Where(vp => vp.Id == caso.Pasos[0].ActividadVersion.VersionProcesoId)
+                        .Select(vp => vp.ProcesoId).Single()).Select(p => new ProcesoResumen
+                {
+                    Codigo = p.Codigo,
+                    Id = p.Id,
+                    Interno = p.Interno,
+                    Nombre = p.Nombre,
+                    Unidad = _context.Unidades.Where(u => u.CodigoUnidades == p.CodigoUnidad).Select(u => u.Unidades)
+                        .Single(),
+                    Version = _context.VersionProcesos.Where(v => v.Id == caso.Pasos[0].ActividadVersion.VersionProcesoId)
+                        .Select(v => v.NumeroVersion).Single()
+                }).Single();
+                
+            }
+            
+            CasoResponse response = new CasoResponse()
+            {
+                Caso = caso,
+                Proceso = proceso
+            };
+            
+            return new HttpResult(response, HttpStatusCode.OK);
+        }
+        catch (Exception ex)
+        {
+            return new HttpError(HttpStatusCode.BadRequest,
+                "Error en la petición: " + ex.Message);
+        }
     }
 
     public Paso CrearPaso(NuevoPasoRequest request)
