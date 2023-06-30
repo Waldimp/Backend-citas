@@ -172,6 +172,20 @@ public class CasoConcrete : ICaso
                 {
                     seccion.Registros = null;
                 }
+
+                if (paso.Responsables != null)
+                {
+                    foreach (var responsable in paso.Responsables)
+                    {
+                        responsable.Usuario =
+                            _context.Usuarios.Where(u => u.CodigoUsuario == responsable.UsuarioId).Select(u => new Usuarios()
+                            {
+                              CodigoUsuario = u.CodigoUsuario,
+                              NombresUsuario = u.NombresUsuario,
+                              ApellidosUsuario = u.ApellidosUsuario
+                            }).Single();
+                    }
+                }
             }
             //_context.PersonasNaturales.ToList();
             
