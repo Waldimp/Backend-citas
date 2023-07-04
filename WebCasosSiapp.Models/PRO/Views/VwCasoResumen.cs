@@ -13,7 +13,9 @@ public class VwCasoResumen
     public string VersionProcesoId { get; set; }
     public int Version { get; set; }
     public int Abiertos { get; set; }
+    public int SinAsignar { get; set; }
     public int Resueltos { get; set; }
     public bool Nuevos { get; set; }
+    public bool Grupo { get; set; }
     public string UsuarioIdResponsable { get; set; }
 }

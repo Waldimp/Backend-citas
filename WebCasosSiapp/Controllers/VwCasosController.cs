@@ -23,6 +23,6 @@ public class VwCasosController : Controller
     [HttpGet("mensaje/{usuario}")]
     public object Mensaje(string usuario)
     {
-        return _hubData.GetDetailActivitiesList(usuario, "2c10294343a24a13b8872586a4acebf3");
+        return _hubData.GetDetailActivitiesList(usuario, "d1bef1755fda4715bf45493cc338b6ea");
     }
 }
