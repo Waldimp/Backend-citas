@@ -166,8 +166,15 @@ public class CasoConcrete : ICaso
             _context.Responsable.ToList();
             _context.Secciones.ToList();
             _context.Registro.ToList();
+            List<Finalizacion> final = new List<Finalizacion>();
+            
             foreach (var paso in caso.Pasos)
             {
+                if (caso.Abierto == false)
+                {
+                    final.AddRange(_context.Finalizacion.Where(f => f.PasoId == paso.Id).ToList());
+                }
+                
                 foreach (var seccion in paso.ActividadVersion.Secciones)
                 {
                     seccion.Registros = null;
@@ -229,7 +236,8 @@ public class CasoConcrete : ICaso
             {
                 Caso = caso,
                 Proceso = proceso,
-                Clientes = clientes
+                Clientes = clientes,
+                Finalizacion = final.Count > 0 ? final[0] : null
             };
             
             return new HttpResult(response, HttpStatusCode.OK);
@@ -260,11 +268,12 @@ public class CasoConcrete : ICaso
             estadoPaso.FechaCreacion = DateTime.Now;
             estadoPaso.AsignadoPor = "SIAPP";
             _context.EstadoPaso.Add(estadoPaso);
-
+            
+            //Crear Responsable
+            Responsable responsable = new Responsable();
             if (request.TipoSeleccion != "autoservicio") // Si es autoservicio no se agrega responsable
             {
-                //Crear Responsable
-                Responsable responsable = new Responsable();
+                
                 responsable.Id = Generals.GetUlid();
                 responsable.PasoId = paso.Id;
                 responsable.FechaCreacion = DateTime.Now;
@@ -290,6 +299,17 @@ public class CasoConcrete : ICaso
             int res = _context.SaveChanges();
             if (res > 0)
             {
+                if (request.TipoSeleccion == "manual" || request.TipoSeleccion == "monousuario" || request.TipoSeleccion == "accion")
+                {
+                    responsable.Usuario =
+                        _context.Usuarios.Where(u => u.CodigoUsuario == responsable.UsuarioId).Select(u => new Usuarios()
+                        {
+                            CodigoUsuario = u.CodigoUsuario,
+                            NombresUsuario = u.NombresUsuario,
+                            ApellidosUsuario = u.ApellidosUsuario
+                        }).Single();
+                }
+                
                 _context.CasoCliente.ToList();
                 _context.EstadoPaso.ToList();
                 _context.Responsable.ToList();
@@ -442,6 +462,22 @@ public class CasoConcrete : ICaso
                     {
                         Response = new HttpError(HttpStatusCode.BadRequest, "Relación no encontrada")
                     };
+                }
+
+                if (relacionDestino.TipoSeleccion == "ciclico" || relacionDestino.TipoSeleccion == "manual" ||
+                    relacionDestino.TipoSeleccion == "accion")
+                { // Comprobar que tenga un perfil
+                    //Obtenemos los perfiles de la actividad version
+                    List<ActividadVersionPerfil> perfiles = _context.ActividadVersionPerfil
+                        .Where(av => av.ActividadVersionId == relacionDestino.ActividadVersionDestino && av.Rol == "responsable" ).ToList();
+                    if (perfiles.Count == 0)
+                    {
+                        return new SignalResponse
+                        {
+                            Response = new HttpError(HttpStatusCode.BadRequest,
+                                "No hay perfiles asociados para la siguiente actividad.")
+                        };
+                    }
                 }
                 
                 // Crear Estado Paso Finalizado
