@@ -21,6 +21,7 @@ public class VwCasoTiempoRes
     public string DuiCliente { get; set; }
     public string NombresCliente { get; set; }
     public string ApellidosCliente { get; set; }
+    public DateTime FechaNacimientoCliente { get; set; }
     public bool Abierto { get; set; }
     public DateTime FechaEstado { get; set; }
     public string? AsignadoPorId { get; set; }
