@@ -68,6 +68,64 @@ public class PasoConcrete : IPaso
 
     }
 
+    public object AutoasignarPaso(string PasoId, string? user)
+    {
+        try
+        {
+            if (user == null)
+                return new HttpError(HttpStatusCode.BadRequest,"Error en el usuario de sesión.");
+
+            List<Responsable> responsables = _context.Responsable.Where(r => r.PasoId == PasoId).ToList();
+            if (responsables.Count > 0)
+            {
+                return new HttpError(HttpStatusCode.BadRequest,"Ya existe un usuario asignado a este paso.");
+            }
+
+            // Agregar responsable
+            Responsable responsable = new Responsable();
+            responsable.Id = Generals.GetUlid();
+            responsable.PasoId = PasoId;
+            responsable.FechaCreacion = DateTime.Now;
+            responsable.UsuarioId = user;
+            responsable.AsignadoPor = user;
+            
+            _context.Responsable.Add(responsable);
+            int res = _context.SaveChanges();
+            if (res > 0)
+            {
+                EstadoPaso estadoNuevo = new EstadoPaso()
+                {
+                    Id = Generals.GetUlid(),
+                    PasoId = PasoId,
+                    Estado = "Nuevo",
+                    FechaCreacion = DateTime.Now,
+                    AsignadoPor = user
+                };
+                _context.EstadoPaso.Add(estadoNuevo);
+            
+                EstadoPaso estadoProceso = new EstadoPaso()
+                {
+                    Id = Generals.GetUlid(),
+                    PasoId = PasoId,
+                    Estado = "En proceso",
+                    FechaCreacion = DateTime.Now,
+                    AsignadoPor = user
+                };
+                _context.EstadoPaso.Add(estadoProceso);
+
+                if (_context.SaveChanges() > 1)
+                {
+                    return new HttpResult("Ingresado correctamente.", HttpStatusCode.OK);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            return new HttpError(HttpStatusCode.BadRequest,"Error en la petición: " + ex.Message);
+        }
+        return null;
+    }
+
     public object DatosDePaso(string PasoId)
     {
         try

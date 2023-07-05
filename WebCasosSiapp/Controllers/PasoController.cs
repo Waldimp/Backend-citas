@@ -33,6 +33,13 @@ public class PasoController : Controller
         return respuesta.Response;
     }
     
+    [HttpGet("AutoasignarPaso/{PasoId}")]
+    public object AutoasignarPaso(string PasoId)
+    {
+        var user = UserJwt.Get(Request.Headers.Authorization);
+        return _paso.AutoasignarPaso(PasoId, user);
+    }
+    
     [HttpGet("DatosDePaso/{PasoId}")]
     public object? DatosDePaso(string PasoId)
     {
