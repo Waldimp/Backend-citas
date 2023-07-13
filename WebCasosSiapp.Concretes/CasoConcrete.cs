@@ -251,71 +251,81 @@ public class CasoConcrete : ICaso
 
     public Paso CrearPaso(NuevoPasoRequest request)
     {
-        // Crear Paso
-        Paso paso = new Paso();
-        paso.Id = Generals.GetUlid();
-        paso.CasoId = request.Caso.Id;
-        paso.ActividadVersionId = request.ActividadVersionId;
-        _context.Paso.Add(paso);
+        // Evaluar si es necesario crear un nuevo paso o reutilizar uno existente
+        var paso = _context.Paso.FirstOrDefault(p =>
+            p.ActividadVersionId == request.ActividadVersionId && p.CasoId == request.Caso.Id);
 
-        if (_context.SaveChanges() == 1)
+        var isOk = true;
+
+        if (paso == null)
         {
-            //Crear Estado Paso
-            EstadoPaso estadoPaso = new EstadoPaso();
-            estadoPaso.Id = Generals.GetUlid();
-            estadoPaso.PasoId = paso.Id;
-            estadoPaso.Estado = request.TipoSeleccion == "autoservicio" ? "Grupo" : "Nuevo";
-            estadoPaso.FechaCreacion = DateTime.Now;
-            estadoPaso.AsignadoPor = "SIAPP";
-            _context.EstadoPaso.Add(estadoPaso);
-            
-            //Crear Responsable
-            Responsable responsable = new Responsable();
-            if (request.TipoSeleccion != "autoservicio") // Si es autoservicio no se agrega responsable
-            {
-                
-                responsable.Id = Generals.GetUlid();
-                responsable.PasoId = paso.Id;
-                responsable.FechaCreacion = DateTime.Now;
+            // Crear Paso
+            paso = new Paso();
+            paso.Id = Generals.GetUlid();
+            paso.CasoId = request.Caso.Id;
+            paso.ActividadVersionId = request.ActividadVersionId;
+            _context.Paso.Add(paso);
+            isOk = _context.SaveChanges() == 1;
+        }
 
-                if (request.TipoSeleccion == "ciclico")
-                {
-                    Ciclo ciclo = AsignacionCiclica(request.ActividadVersionId);
-                    if (ciclo != null)
-                    {
-                        responsable.UsuarioId = ciclo.UsuarioId;
-                        responsable.AsignadoPor = "SIAPP";
-                    }
-                }
-                else
-                { // Asignacion Manual o Monousuario
-                    responsable.UsuarioId = request.Responsable.UsuarioId;
-                    responsable.AsignadoPor = request.Responsable.AsignadoPor;
-                }
-                
-                _context.Responsable.Add(responsable);
-            }
+        if (!isOk) return null;
+
+        //Crear Estado Paso
+        EstadoPaso estadoPaso = new EstadoPaso();
+        estadoPaso.Id = Generals.GetUlid();
+        estadoPaso.PasoId = paso.Id;
+        estadoPaso.Estado = request.TipoSeleccion == "autoservicio" ? "Grupo" : "Nuevo";
+        estadoPaso.FechaCreacion = DateTime.Now;
+        estadoPaso.AsignadoPor = "SIAPP";
+        _context.EstadoPaso.Add(estadoPaso);
             
-            int res = _context.SaveChanges();
-            if (res > 0)
-            {
-                if (request.TipoSeleccion == "manual" || request.TipoSeleccion == "monousuario" || request.TipoSeleccion == "accion")
-                {
-                    responsable.Usuario =
-                        _context.Usuarios.Where(u => u.CodigoUsuario == responsable.UsuarioId).Select(u => new Usuarios()
-                        {
-                            CodigoUsuario = u.CodigoUsuario,
-                            NombresUsuario = u.NombresUsuario,
-                            ApellidosUsuario = u.ApellidosUsuario
-                        }).Single();
-                }
+        //Crear Responsable
+        Responsable responsable = new Responsable();
+        if (request.TipoSeleccion != "autoservicio") // Si es autoservicio no se agrega responsable
+        {
                 
-                _context.CasoCliente.ToList();
-                _context.EstadoPaso.ToList();
-                _context.Responsable.ToList();
-                _context.PersonasNaturales.ToList();
-                return paso;
+            responsable.Id = Generals.GetUlid();
+            responsable.PasoId = paso.Id;
+            responsable.Activo = true;
+            responsable.FechaCreacion = DateTime.Now;
+
+            if (request.TipoSeleccion == "ciclico")
+            {
+                Ciclo ciclo = AsignacionCiclica(request.ActividadVersionId);
+                if (ciclo != null)
+                {
+                    responsable.UsuarioId = ciclo.UsuarioId;
+                    responsable.AsignadoPor = "SIAPP";
+                }
             }
+            else
+            { // Asignacion Manual o Monousuario
+                responsable.UsuarioId = request.Responsable.UsuarioId;
+                responsable.AsignadoPor = request.Responsable.AsignadoPor;
+            }
+                
+            _context.Responsable.Add(responsable);
+        }
+            
+        int res = _context.SaveChanges();
+        if (res > 0)
+        {
+            if (request.TipoSeleccion == "manual" || request.TipoSeleccion == "monousuario" || request.TipoSeleccion == "accion")
+            {
+                responsable.Usuario =
+                    _context.Usuarios.Where(u => u.CodigoUsuario == responsable.UsuarioId).Select(u => new Usuarios()
+                    {
+                        CodigoUsuario = u.CodigoUsuario,
+                        NombresUsuario = u.NombresUsuario,
+                        ApellidosUsuario = u.ApellidosUsuario
+                    }).Single();
+            }
+                
+            _context.CasoCliente.ToList();
+            _context.EstadoPaso.ToList();
+            _context.Responsable.ToList();
+            _context.PersonasNaturales.ToList();
+            return paso;
         }
         return null;
     }
@@ -488,7 +498,12 @@ public class CasoConcrete : ICaso
                 estadoPaso.FechaCreacion = DateTime.Now;
                 estadoPaso.AsignadoPor = usuarioId;
                 _context.EstadoPaso.Add(estadoPaso);
-            
+
+                var responsableActual = _context.Responsable.Single(r => r.PasoId == pasoId && r.Activo == true);
+                responsableActual.Activo = false;
+
+                _context.Responsable.Update(responsableActual);
+
                 _context.SaveChanges();
                 
                 ResponsableRequest responsable = new ResponsableRequest
@@ -587,5 +602,124 @@ public class CasoConcrete : ICaso
                     "Error en la petición: " + ex.Message)
             };
         }
+    }
+
+    public SignalResponse CambioContexto(CambioContextoRequest request, string? usuario)
+    {
+        // Buscar el paso
+        var pasoActual = _context.Paso.Single(p => p.Id == request.PasoActualId);
+        var pasoDestino = _context.Paso.FirstOrDefault(p => p.Id == request.PasoDestinoId);
+
+        var responsableResponse = _context.Responsable.Where(r => r.PasoId == pasoActual.Id)
+            .OrderByDescending(p => p.FechaCreacion).Take(1).Single();
+        
+        // Crear el estado
+        var estado = new EstadoPaso
+        {
+            Estado = (request.Tipo == "estado" && request.Estado != null && request.Estado != "Grupo")
+                ? request.Estado
+                : "Nuevo",
+            Id = Generals.GetUlid(),
+            AsignadoPor = usuario,
+            FechaCreacion = DateTime.Now,
+            PasoId = request.Tipo is "estado" or "responsable" ? pasoActual.Id : pasoDestino.Id
+        };
+        _context.EstadoPaso.Add(estado);
+        
+        // En caso de cambiar el responsable
+        if (request.Tipo == "responsable" && request.ResponsableId != null)
+        {
+            // Buscar el responsable activo
+            var responsableActivo = _context.Responsable.FirstOrDefault(r => r.Activo == true && r.PasoId == pasoActual.Id);
+            if (responsableActivo != null)
+            {
+                responsableActivo.Activo = false;
+                _context.Responsable.Update(responsableActivo);
+            }
+
+            var responsableActual = new Responsable
+            {
+                Id = Generals.GetUlid(),
+                Activo = true,
+                FechaCreacion = DateTime.Now,
+                AsignadoPor = usuario,
+                PasoId = pasoActual.Id,
+                UsuarioId = request.ResponsableId
+            };
+
+            responsableResponse = responsableActual;
+
+            _context.Responsable.Add(responsableActual);
+        }
+        
+        if (request.Tipo != "responsable")
+        {
+            if (request.Tipo is "paso" or "caso")
+            {
+                // Reactivar al responsable de destino
+                var responsableDestino = _context.Responsable.Where(r => r.PasoId == pasoDestino.Id)
+                    .OrderByDescending(p => p.FechaCreacion).Select(r => new Responsable
+                    {
+                        Activo = true,
+                        Id = Generals.GetUlid(),
+                        AsignadoPor = usuario,
+                        FechaCreacion = DateTime.Now,
+                        PasoId = r.PasoId,
+                        UsuarioId = r.UsuarioId
+                    }).Single();
+                responsableResponse = responsableDestino;
+                _context.Responsable.Add(responsableDestino);
+
+                if (request.Tipo == "paso")
+                {
+                    var estadoActual = new EstadoPaso
+                    {
+                        Estado = "Finalizado",
+                        Id = Generals.GetUlid(),
+                        AsignadoPor = usuario,
+                        FechaCreacion = DateTime.Now,
+                        PasoId = pasoActual.Id
+                    };
+                    _context.EstadoPaso.Add(estadoActual);
+                }
+                else
+                {
+                    // Almacenar registro de reapertura
+                    var reapertura = new PasoReapertura
+                    {
+                        Id = Generals.GetUlid(),
+                        Justificacion = request.Justificacion,
+                        CreadoPor = usuario,
+                        FechaCreacion = DateTime.Now,
+                        PasoId = pasoDestino.Id
+                    };
+                    _context.PasoReaperturas.Add(reapertura);
+
+                    var caso = _context.Caso.Single(c => c.Id == pasoActual.CasoId);
+                    caso.Abierto = true;
+                    _context.Caso.Update(caso);
+                }
+            }
+        }
+
+        if (_context.SaveChanges() > 0)
+        {
+            return new SignalResponse
+            {
+                Responsables = new List<Responsable> { responsableResponse },
+                Response = new HttpResult(HttpStatusCode.OK, "Acción exitosa"),
+                VersionId = _context.ActividadVersiones
+                    .Where(av => av.Id == _context.Paso.Where(p => p.Id == pasoActual.Id)
+                        .Select(p => p.ActividadVersionId).Single())
+                    .Select(av => av.VersionProcesoId).Single()
+            };
+        }
+        
+        return new SignalResponse
+        {
+            Responsables = null,
+            Response = new HttpError(HttpStatusCode.InternalServerError, "No se pudo guardar correctamente"),
+            VersionId = null
+        };
     }
 }

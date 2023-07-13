@@ -12,4 +12,5 @@ public interface ICaso
     object EliminarProcesoFijoUsuario(string ProcesoId, string UsuarioId);
     public Ciclo AsignacionCiclica(string ActividadVersionId);
     SignalResponse FinalizarPaso(string pasoId, FinalizarPasoRequest request, string? UsuarioId);
+    SignalResponse CambioContexto(CambioContextoRequest request, string? usuario);
 }

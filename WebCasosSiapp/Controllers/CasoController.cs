@@ -42,7 +42,17 @@ public class CasoController : Controller
         await SendSignal.Send(_hub, _data, respuesta);
         return respuesta.Response;
     }
-    
+
+    [HttpPost("CambiarContexto")]
+    public async Task<object> CambiarContexto(CambioContextoRequest datos)
+    {
+        var user = UserJwt.Get(Request.Headers.Authorization);
+        var respuesta = _caso.CambioContexto(datos, user);
+        if (respuesta.Responsables == null) return respuesta.Response;
+        await SendSignal.Send(_hub, _data, respuesta);
+        return respuesta.Response;
+    }
+
     [HttpGet("ObtenerCaso/{id}")]
     public object ObtenerCaso(string id)
     {

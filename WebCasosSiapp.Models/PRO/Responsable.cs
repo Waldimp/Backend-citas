@@ -12,4 +12,5 @@ public class Responsable
     public DateTime FechaCreacion { get; set; }
     public string? AsignadoPor { get; set; }
     public Usuarios? Usuario  { get; set; }
+    public bool? Activo { get; set; }
 }

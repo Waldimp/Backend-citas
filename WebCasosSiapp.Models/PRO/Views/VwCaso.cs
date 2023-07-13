@@ -40,14 +40,5 @@ public class VwCaso
     public string? AsignadoPorId { get; set; }
     public string? NombresAsignadoPor { get; set; }
     public string? ApellidosAsignadoPor { get; set; }
-    public string? PerfilIdSupervisorProceso { get; set; }
-    public string? UsuarioIdSupervisorProceso { get; set; }
-    public string? NombresSupervisorProceso { get; set; }
-    public string? ApellidosSupervisorProceso { get; set; }
-    public string? PerfilIdSupervisorActividad { get; set; }
-    public string? UsuarioIdSupervisorActividad { get; set; }
-    public string? NombresSupervisorActividad { get; set; }
-    public string? ApellidosSupervisorActividad { get; set; }
-    public string? RolSupervisorActividad { get; set; }
-    #nullable disable
+#nullable disable
 }

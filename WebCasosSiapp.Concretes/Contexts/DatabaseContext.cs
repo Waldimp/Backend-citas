@@ -40,6 +40,7 @@ public class DatabaseContext: DbContext
     public DbSet<Finalizacion>? Finalizacion { get; set; }
     public DbSet<Proceso>? Procesos { get; set; }
     public DbSet<Unidad>? Unidades { get; set; }
+    public DbSet<PasoReapertura>? PasoReaperturas { get; set; }
     // Model builder
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

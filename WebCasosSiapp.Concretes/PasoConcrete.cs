@@ -75,7 +75,7 @@ public class PasoConcrete : IPaso
             if (user == null)
                 return new HttpError(HttpStatusCode.BadRequest,"Error en el usuario de sesión.");
 
-            List<Responsable> responsables = _context.Responsable.Where(r => r.PasoId == PasoId).ToList();
+            List<Responsable> responsables = _context.Responsable.Where(r => r.PasoId == PasoId && r.Activo == true).ToList();
             if (responsables.Count > 0)
             {
                 return new HttpError(HttpStatusCode.BadRequest,"Ya existe un usuario asignado a este paso.");
@@ -86,6 +86,7 @@ public class PasoConcrete : IPaso
             responsable.Id = Generals.GetUlid();
             responsable.PasoId = PasoId;
             responsable.FechaCreacion = DateTime.Now;
+            responsable.Activo = true;
             responsable.UsuarioId = user;
             responsable.AsignadoPor = user;
             
