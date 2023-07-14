@@ -109,7 +109,7 @@ public class PasoConcrete : IPaso
                     Id = Generals.GetUlid(),
                     PasoId = PasoId,
                     Estado = "En proceso",
-                    FechaCreacion = DateTime.Now,
+                    FechaCreacion = DateTime.Now.AddMilliseconds(3),
                     AsignadoPor = user
                 };
                 _context.EstadoPaso.Add(estadoProceso);

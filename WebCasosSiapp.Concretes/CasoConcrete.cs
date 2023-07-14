@@ -564,6 +564,14 @@ public class CasoConcrete : ICaso
             _context.Caso.Update(caso);
             if (_context.SaveChanges() == 1)
             {
+                // Desactivar al responsable del paso
+                var responsableF = _context.Responsable.FirstOrDefault(r => r.PasoId == pasoId && r.Activo == true);
+                if (responsableF != null)
+                {
+                    responsableF.Activo = false;
+                    _context.Responsable.Update(responsableF);
+                }
+
                 // Agregar finalizacion
                 Finalizacion final = new Finalizacion
                 {
@@ -612,22 +620,8 @@ public class CasoConcrete : ICaso
 
         var responsableResponse = _context.Responsable.Where(r => r.PasoId == pasoActual.Id)
             .OrderByDescending(p => p.FechaCreacion).Take(1).Single();
-        
-        // Crear el estado
-        var estado = new EstadoPaso
-        {
-            Estado = (request.Tipo == "estado" && request.Estado != null && request.Estado != "Grupo")
-                ? request.Estado
-                : "Nuevo",
-            Id = Generals.GetUlid(),
-            AsignadoPor = usuario,
-            FechaCreacion = DateTime.Now,
-            PasoId = request.Tipo is "estado" or "responsable" ? pasoActual.Id : pasoDestino.Id
-        };
-        _context.EstadoPaso.Add(estado);
-        
-        // En caso de cambiar el responsable
-        if (request.Tipo == "responsable" && request.ResponsableId != null)
+
+        if (request.Tipo != "estado")
         {
             // Buscar el responsable activo
             var responsableActivo = _context.Responsable.FirstOrDefault(r => r.Activo == true && r.PasoId == pasoActual.Id);
@@ -636,7 +630,11 @@ public class CasoConcrete : ICaso
                 responsableActivo.Activo = false;
                 _context.Responsable.Update(responsableActivo);
             }
+        }
 
+        // En caso de cambiar el responsable
+        if (request.Tipo == "responsable" && request.ResponsableId != null)
+        {
             var responsableActual = new Responsable
             {
                 Id = Generals.GetUlid(),
@@ -684,6 +682,15 @@ public class CasoConcrete : ICaso
                 }
                 else
                 {
+                    // Inhabilitar la finalización
+                    var finalizacion = _context.Finalizacion.FirstOrDefault(f => f.PasoId == pasoActual.Id && f.Activo == true);
+
+                    if (finalizacion != null)
+                    {
+                        finalizacion.Activo = false;
+                        _context.Finalizacion.Update(finalizacion);
+                    }
+                    
                     // Almacenar registro de reapertura
                     var reapertura = new PasoReapertura
                     {
@@ -701,6 +708,19 @@ public class CasoConcrete : ICaso
                 }
             }
         }
+        
+        // Crear el estado
+        var estado = new EstadoPaso
+        {
+            Estado = (request.Tipo == "estado" && request.Estado != null && request.Estado != "Grupo")
+                ? request.Estado
+                : "Nuevo",
+            Id = Generals.GetUlid(),
+            AsignadoPor = usuario,
+            FechaCreacion = DateTime.Now.AddMilliseconds(3),
+            PasoId = request.Tipo is "estado" or "responsable" ? pasoActual.Id : pasoDestino.Id
+        };
+        _context.EstadoPaso.Add(estado);
 
         if (_context.SaveChanges() > 0)
         {
