@@ -36,6 +36,7 @@ public class VwCaso
     public string? UsuarioIdResponsable { get; set; }
     public string? NombresResponsable { get; set; }
     public string? ApellidosResponsable { get; set; }
+    public bool? ActivoResponsable { get; set; }
     public DateTime? FechaAsignacion { get; set; }
     public string? AsignadoPorId { get; set; }
     public string? NombresAsignadoPor { get; set; }

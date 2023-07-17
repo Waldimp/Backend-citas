@@ -11,18 +11,19 @@ public class SendSignal
     {
         foreach (var responsable in res.Responsables)
         {
-            var resResumen = data.GetProcessesVersionsList(responsable.UsuarioId);
-            var grupoResumen = "pvl" + responsable.UsuarioId;
+            System.Diagnostics.Debug.WriteLine("Responsable xx -------------->" + responsable);
+            var resResumen = data.GetProcessesVersionsList(responsable);
+            var grupoResumen = "pvl" + responsable;
             await hub.Clients.Group(grupoResumen).SendAsync("getProcessesVersionsList", resResumen);
 
-            var resNuevo = data.GetNewActivitiesList(responsable.UsuarioId);
-            var grupoNuevo = "nal" + responsable.UsuarioId;
+            var resNuevo = data.GetNewActivitiesList(responsable);
+            var grupoNuevo = "nal" + responsable;
             await hub.Clients.Group(grupoNuevo).SendAsync("getNewActivitiesList", resNuevo);
 
             if (res.VersionId != null)
             {
-                var resDetalle = data.GetDetailActivitiesList(responsable.UsuarioId, res.VersionId);
-                var grupoDetalle = "dpv" + responsable.UsuarioId + "**" + res.VersionId;
+                var resDetalle = data.GetDetailActivitiesList(responsable, res.VersionId);
+                var grupoDetalle = "dpv" + responsable + "**" + res.VersionId;
                 await hub.Clients.Group(grupoDetalle).SendAsync("getDetailProcessesVersionList", resDetalle);
             }
         }

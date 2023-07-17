@@ -44,10 +44,14 @@ public class PasoConcrete : IPaso
             _context.EstadoPaso.Add(estadoPaso);
             if (_context.SaveChanges() == 1)
             {
+                var responsables = _context.VwCases.Where(vwc => vwc.PasoId == PasoId && vwc.ActivoResponsable != false)
+                    .Select(vwc => vwc.UsuarioIdResponsable)
+                    .ToList();
+
                 return new SignalResponse
                 {
                     Response = new HttpResult(estadoPaso, HttpStatusCode.OK),
-                    Responsables = _context.Responsable?.Where(r => r.UsuarioId == user && r.PasoId == PasoId).ToList(),
+                    Responsables = responsables,
                     VersionId = version
                 };
             }

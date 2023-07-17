@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.SignalR;
 using ServiceStack;
 using ServiceStack.Text;
@@ -6,6 +7,7 @@ using WebCasosSiapp.Concretes.Contexts;
 using WebCasosSiapp.Concretes.Functions;
 using WebCasosSiapp.Interfaces;
 using WebCasosSiapp.Models.PRO;
+using WebCasosSiapp.Models.PRO.Views;
 using WebCasosSiapp.Models.SIS;
 using WebCasosSiapp.ViewModels.Requests;
 using WebCasosSiapp.ViewModels.Responses;
@@ -106,7 +108,8 @@ public class CasoConcrete : ICaso
                         return caso != null
                             ? new SignalResponse
                             {
-                                Response = new HttpResult(caso, HttpStatusCode.OK), Responsables = paso.Responsables,
+                                Response = new HttpResult(caso, HttpStatusCode.OK),
+                                Responsables = paso.Responsables.Select(pr => pr.UsuarioId).ToList(),
                                 VersionId = verPro.Id
                             }
                             : new SignalResponse
@@ -520,7 +523,11 @@ public class CasoConcrete : ICaso
                         
                 // Crear Paso
                 Paso paso = CrearPaso(nuevoPasoRequest);
-                
+
+                var responsables = _context.VwCases.Where(vwc => vwc.PasoId == paso.Id && vwc.ActivoResponsable != false)
+                    .Select(vwc => vwc.UsuarioIdResponsable)
+                    .ToList();
+
                 // Llamar Notificaciones Signal R
 
                 return caso != null
@@ -530,7 +537,7 @@ public class CasoConcrete : ICaso
                         VersionId = _context.ActividadVersiones
                             ?.Where(av => av.Id == nuevoPasoRequest.ActividadVersionId)
                             .Select(av => av.VersionProcesoId).Single(),
-                        Responsables = _context.Responsable?.Where(r => r.UsuarioId == usuarioId && r.PasoId == paso.Id).ToList()
+                        Responsables = responsables
                     }
                     : new SignalResponse
                     {
@@ -585,12 +592,15 @@ public class CasoConcrete : ICaso
                 };
                 _context.Finalizacion.Add(final);
                 _context.SaveChanges();
+                
+                var responsables = _context.VwCases.Where(vwc => vwc.PasoId == pasoId && vwc.ActivoResponsable != false)
+                    .Select(vwc => vwc.UsuarioIdResponsable)
+                    .ToList();
 
                 return new SignalResponse
                 {
                     Response = new HttpResult(caso, HttpStatusCode.OK),
-                    Responsables = _context.Responsable.Where(r => r.UsuarioId == usuarioId && r.PasoId == pasoId)
-                        .ToList(),
+                    Responsables = responsables,
                     VersionId = _context.ActividadVersiones
                         .Where(av => av.Id == _context.Paso.Where(p => p.Id == pasoId).Select(p => p.ActividadVersionId).Single())
                         .Select(av => av.VersionProcesoId).Single()
@@ -726,7 +736,7 @@ public class CasoConcrete : ICaso
         {
             return new SignalResponse
             {
-                Responsables = new List<Responsable> { responsableResponse },
+                Responsables = new List<string> { responsableResponse.UsuarioId },
                 Response = new HttpResult(HttpStatusCode.OK, "Acción exitosa"),
                 VersionId = _context.ActividadVersiones
                     .Where(av => av.Id == _context.Paso.Where(p => p.Id == pasoActual.Id)

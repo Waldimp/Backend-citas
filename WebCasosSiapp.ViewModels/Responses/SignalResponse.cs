@@ -6,5 +6,5 @@ public class SignalResponse
 {
     public object Response { get; set; }
     public string? VersionId { get; set; }
-    public List<Responsable>? Responsables { get; set; }
+    public List<string>? Responsables { get; set; }
 }
