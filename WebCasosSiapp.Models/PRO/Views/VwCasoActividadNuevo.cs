@@ -21,4 +21,5 @@ public class VwCasoActividadNuevo
     public string? ApellidosAsignadoPor { get; set; }
     public string UsuarioIdResponsable { get; set; }
     public string PasoId { get; set; }
+    public string CasoId { get; set; }
 }
