@@ -38,7 +38,6 @@ public class CasoController : Controller
     {
         var user = UserJwt.Get(Request.Headers.Authorization);
         var respuesta = _caso.FinalizarPaso(pasoId, request, user);
-        System.Diagnostics.Debug.WriteLine("Debug baby -----------------> " + respuesta.Response.ToString());
         if (respuesta.Responsables == null) return respuesta.Response;
         await SendSignal.Send(_hub, _data, respuesta);
         return respuesta.Response;

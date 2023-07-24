@@ -72,17 +72,27 @@ public class PasoConcrete : IPaso
 
     }
 
-    public object AutoasignarPaso(string PasoId, string? user)
+    public SignalResponse AutoasignarPaso(string PasoId, string? user)
     {
         try
         {
             if (user == null)
-                return new HttpError(HttpStatusCode.BadRequest,"Error en el usuario de sesión.");
+                return new SignalResponse
+                {
+                    Responsables = null,
+                    VersionId = null,
+                    Response = new HttpError(HttpStatusCode.BadRequest, "Error en el usuario de sesión.")
+                };
 
-            List<Responsable> responsables = _context.Responsable.Where(r => r.PasoId == PasoId && r.Activo == true).ToList();
-            if (responsables.Count > 0)
+            var responsables = _context.VwCases.Where(r => r.PasoId == PasoId && r.ActivoResponsable != false).ToList();
+            if (responsables.Any(r => r.ActivoResponsable == true))
             {
-                return new HttpError(HttpStatusCode.BadRequest,"Ya existe un usuario asignado a este paso.");
+                return new SignalResponse
+                {
+                    Responsables = null,
+                    VersionId = null,
+                    Response = new HttpError(HttpStatusCode.BadRequest,"Ya existe un usuario asignado a este paso.")
+                };
             }
 
             // Agregar responsable
@@ -120,13 +130,25 @@ public class PasoConcrete : IPaso
 
                 if (_context.SaveChanges() > 1)
                 {
-                    return new HttpResult("Ingresado correctamente.", HttpStatusCode.OK);
+                    return new SignalResponse
+                    {
+                        Responsables = responsables.Select(r => r.UsuarioIdResponsable).ToList(),
+                        VersionId = _context.ActividadVersiones
+                            .Where(av => av.Id == _context.Paso.Where(p => p.Id == PasoId).Select(p => p.ActividadVersionId).Single())
+                            .Select(av => av.VersionProcesoId).Single(),
+                        Response = new HttpResult("Ingresado correctamente.", HttpStatusCode.OK)
+                    };
                 }
             }
         }
         catch (Exception ex)
         {
-            return new HttpError(HttpStatusCode.BadRequest,"Error en la petición: " + ex.Message);
+            return new SignalResponse
+            {
+                Responsables = null,
+                VersionId = null,
+                Response = new HttpError(HttpStatusCode.BadRequest,"Error en la petición: " + ex.Message)
+            };
         }
         return null;
     }

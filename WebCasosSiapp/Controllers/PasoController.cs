@@ -34,10 +34,13 @@ public class PasoController : Controller
     }
     
     [HttpGet("AutoasignarPaso/{PasoId}")]
-    public object AutoasignarPaso(string PasoId)
+    public async Task<object> AutoasignarPaso(string PasoId)
     {
         var user = UserJwt.Get(Request.Headers.Authorization);
-        return _paso.AutoasignarPaso(PasoId, user);
+        var respuesta = _paso.AutoasignarPaso(PasoId, user);
+        if (respuesta.Responsables == null) return respuesta.Response;
+        await SendSignal.Send(_hub, _data, respuesta);
+        return respuesta.Response;
     }
     
     [HttpGet("DatosDePaso/{PasoId}")]
